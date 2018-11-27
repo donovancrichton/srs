@@ -1,14 +1,10 @@
 
-HugePrime : Type
-HugePrime = Nat
+data ZID
+data Options
+data HashValue
 
-Generator : Type
-Generator = Nat
-
-AliceRandom : Type
-AliceRandom = Nat
-
-BobRandom : Type
-BobRandom = Nat
-
+data Message =
+  Hello
+  | HelloAck
+  | Commit (ZID, Options, HashValue)
 

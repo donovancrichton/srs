@@ -8,6 +8,5 @@
 **/*.fdb_latexmk
 **/*.fls
 **/*.log
-**/*.pdf
 **/*.ibc
 **/*.*~
