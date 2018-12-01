@@ -89,6 +89,7 @@ data KeyAgreement =
 -- The encoding types for the short authentication string.
 data SAS = B32 | B256
 
+
 -- The ways to sign an SAS.
 data Sig = PGP | X509
 
@@ -122,6 +123,9 @@ AuxSecretIDI = Hash
 
 PBXSecretIDI : Type
 PBXSecretIDI = Hash
+
+EndpointHash : Type
+EndpointHash = Hash
 
 -- TODO: Check the DH hash HVI
 data Commit : KeyAgreement -> Type where
@@ -188,27 +192,28 @@ data ZRTPPrim =
   | Conf2Ack
   | Error (ErrorCode c m)
   | ErrorAck
-  | GoClear ClearMac
+  | GoClear ClearMAC
   | ClearAck
-  | SASRelay
+  | SASRelay MAC CFBInitVect SigLen SAS Hash (Maybe Sig)
   | RelayAck
-  | Ping
-  | PingAck2
+  | Ping ZRTPVersion EndpointHash
+  | PingAck2 ZRTPVersion EndpointHash EndpointHash (SourceId m)
 
+||| ZRTP product type representing the message, all messages have
+||| a preamble and length |||
 data ZRTPMsg =
   ZRTP PreAmble MsgLength ZRTPPrim
-
-
-
-
-
-
-
-
 
 ||| ZRTP Product Type representing the packet |||
 data ZRTPPacket =
   ZP (SeqNum n) (MCookie s s') (SourceId m) ZRTPPrim (CRC k)
+
+
+test : Integer
+test = 7640891576956012808
+
+test2 : Bits32
+test2 = 0x6a09e667
 
 
 
