@@ -95,6 +95,7 @@ data Sig = PGP | X509
 -- TODO: what is this!?
 data HVI
 data PVR
+data PVI
 data Nonce
 data KeyID
 
@@ -110,14 +111,64 @@ AuxSecretIDR = Hash
 PBXSecretIDR : Type
 PBXSecretIDR = Hash
 
+RS1IDI : Type
+RS1IDI = Hash
+
+RS2IDI : Type
+RS2IDI = Hash
+
+AuxSecretIDI : Type
+AuxSecretIDI = Hash
+
+PBXSecretIDI : Type
+PBXSecretIDI = Hash
+
 -- TODO: Check the DH hash HVI
 data Commit : KeyAgreement -> Type where
   DH : HashImage -> ZID -> Hash -> Cipher -> AuthTag -> 
        (k: KeyAgreement) -> SAS -> HVI -> MAC -> Commit k
   PS : HashImage -> ZID -> Hash -> Cipher -> AuthTag -> 
-       SAS -> Nonce -> MAC -> Commit k
+       SAS -> Nonce -> MAC -> Commit PRSH
   MS : HashImage -> ZID -> Hash -> Cipher -> AuthTag -> 
-       SAS -> Nonce -> KeyID -> MAC -> Commit PRSH
+       SAS -> Nonce -> KeyID -> MAC -> Commit MULT
+
+--TODO: Find out the difference between a hash image and a 
+-- hash preimage.
+data HashPreImage
+
+data CFBInitVect
+data ConfirmMAC
+data SigLen
+data CacheExpIntvl
+
+-- The possible error codes and associated messages.
+data ErrorCode : String -> String -> Type where
+  X10 : ErrorCode "0x10" 
+          "Malformed packet (CRC OK, but wrong structure)"
+  X20 : ErrorCode "0x20" "Critical software error"
+  X30 : ErrorCode "0x30" "Unsupported ZRTP version"
+  X40 : ErrorCode "0x40" "Hello components mismatch"
+  X51 : ErrorCode "0x51" "Hash Type not supported"
+  X52 : ErrorCode "0x52" "Cipher Type not supported"
+  X53 : ErrorCode "0x53" "Public key exchange not supported"
+  X54 : ErrorCode "0x54" "SRTP auth tag not supported"
+  X55 : ErrorCode "0x55" "SAS rendering scheme not supported"
+  X56 : ErrorCode "0x56" 
+          "No shared secret available, DH mode required"
+  X61 : ErrorCode "0x61" 
+          "DH Error: bad bvi or pvr ( == 1, 0, or p-1)"
+  X62 : ErrorCode "0x62" "DH Error: hvi != hashed data"
+  X63 : ErrorCode "0x63" "Received relay SAS from untrusted MiTM"
+  X70 : ErrorCode "0x70" "Auth Error: Bad Confirm pkt MAC"
+  X80 : ErrorCode "0x80" "Nonce reuse"
+  X90 : ErrorCode "0x90" "Equal ZIDs in Hello"
+  X91 : ErrorCode "0x91" "SSRC collision"
+  XA0 : ErrorCode "0xA0" "Service unavailable"
+  XB0 : ErrorCode "0xB0" "Protocol timeout error"
+  X100 : ErrorCode "0x100" 
+           "GoClear message received, but not allowed"
+
+
 
 -- The set of ZRTP Primitives and associated msg information
 data ZRTPPrim =
@@ -125,12 +176,16 @@ data ZRTPPrim =
     (List AuthTag) (List KeyAgreement) (List SAS) MAC
   | HelloAck
   | Com (Commit k)
-  | DHPart1 
-  | DHPart2
-  | Confirm1
-  | Confirm2
+  | DHPart1 HashImage RS1IDR RS2IDR AuxSecretIDR PBXSecretIDR
+    PVR MAC
+  | DHPart2 HashImage RS1IDI RS2IDI AuxSecretIDI PBXSecretIDI
+    PVI MAC
+  | Confirm1 ConfirmMAC CFBInitVect HashPreImage SigLen
+    CacheExpIntvl (Maybe Sig)
+  | Confirm2 ConfirmMAC CFBInitVect HashPreImage SigLen
+    CacheExpIntvl (Maybe Sig)
   | Conf2Ack
-  | Error
+  | Error (ErrorCode c m)
   | ErrorAck
   | GoClear
   | ClearAck
