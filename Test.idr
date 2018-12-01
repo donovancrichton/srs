@@ -1,3 +1,4 @@
+import Data.Bits
 
 ||| Types for the ZRTP Packet Format |||
 
@@ -22,7 +23,7 @@ data CRC : Nat -> Type where
   C : (n : Nat) -> CRC n
 
 ||| HASHES |||
--- The Hash algorithm
+-- The Hash algorithms allowed by the protocol
 data Hash = 
   S256
   | S384
@@ -36,10 +37,10 @@ data HashTypes = HT (List Hash)
 -- the negociated 'HashType'
 data MAC
 
--- TODO: Understand Hash negociation steps.
+-- TODO: Understand Hash negotiation steps.
 data HMAC
-data NegociatedHash
-data NegociatedMAC
+data NegotiatedHash
+data NegotiatedMAC
 
 
 ||| ZRTP MESSSAGES |||
@@ -208,12 +209,48 @@ data ZRTPMsg =
 data ZRTPPacket =
   ZP (SeqNum n) (MCookie s s') (SourceId m) ZRTPPrim (CRC k)
 
+-- A function to perform a left circular shift on bits
+rotLeft : {n : Nat} -> Bits n -> (k : Nat) -> 
+          {auto prf : LTE k n} -> Bits n
+rotLeft {n} x k = or lhs rhs
+  where
+    k' : Bits n
+    k' = intToBits (cast k)
 
-test : Integer
-test = 7640891576956012808
+    n' : Bits n
+    n' = intToBits (cast n)
 
-test2 : Bits32
-test2 = 0x6a09e667
+    lhs : Bits n
+    lhs = shiftLeft x k'
+
+    rhs : Bits n
+    rhs = shiftRightLogical x (minus n' k')
+
+-- A function to perform right circular shift on bits
+rotRight : {n : Nat} -> Bits n -> (k : Nat) -> 
+          {auto prf : LTE k n} -> Bits n
+rotRight {n} x k = or lhs rhs
+  where
+    k' : Bits n
+    k' = intToBits (cast k)
+
+    n' : Bits n
+    n' = intToBits (cast n)
+
+    lhs : Bits n
+    lhs = shiftRightLogical x k'
+
+    rhs : Bits n
+    rhs = shiftLeft x (minus n' k')
+
+test : Bits 8
+test = intToBits 8
+
+test2 : Bits 8
+test2 = intToBits (-8)
+
+somek : Bits 8
+somek = intToBits 1
 
 
 
