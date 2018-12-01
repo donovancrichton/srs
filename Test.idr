@@ -140,6 +140,7 @@ data CFBInitVect
 data ConfirmMAC
 data SigLen
 data CacheExpIntvl
+data ClearMAC
 
 -- The possible error codes and associated messages.
 data ErrorCode : String -> String -> Type where
@@ -187,7 +188,7 @@ data ZRTPPrim =
   | Conf2Ack
   | Error (ErrorCode c m)
   | ErrorAck
-  | GoClear
+  | GoClear ClearMac
   | ClearAck
   | SASRelay
   | RelayAck
