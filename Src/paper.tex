@@ -26,34 +26,75 @@ Student Number: u6881864}
 \begin{document}
 
 \maketitle
-
-\section*{A description of the ZRTP Protocol}
-  \subsection*{Syntax}
-  \subsubsection{$p$}
-  $p$ represents the message preamble $0x505a$ followed
-  by a 16-bit length in 32-bit words, followed by the message
-  type 2-word block string (e.g.) ``hello''.
-  \subsubsection{$v$}
-  $v$ represents the 4-character long string containing the
-  version of the ZRTP protocol.
-  \subsubsection{$cid$}
-  $cid$ represents the client identificationn string which
-  identifies the vendor and release of the ZRTP software.
-  \subsubsection($h3$)
-  $h3$ represents the following: \\
-    $h0$ representing a 256-bit random nonce. \\
-    $h1$ representing a hash of $h0$ with SHA-256.\\
-    $h2$ representing a hash of $h1$ with SHA-256.\\
-    $h3$ representing a hash of $h2$ with SHA-256.
-  \subsubsection($zid$)
+  \section*{The Message Preamble}
+  All ZRTP Messages are prefixed by a preamble, message length
+  and message type. 
+  \begin{itemize}
+  \item Let $p$ represent the message preamble $0x505a$ followed
+        by a 16-bit length in 32-bit words, followed by the 
+        message type 2-word block string (e.g. ``hello'').
+  \end{itemize}
+  \section*{The Hello Messages}
+  \begin{itemize}
+    \item Let $p$ represent the message preamble.
+    \item Let $v$ represent the 4-character long string containing 
+          the version of the ZRTP protocol.
+    \item Let $c$ represent the client identification string which
+          identifies the vendor and release of the ZRTP software.
+    \item Let $h3$ represent the following:
+       \begin{itemize}
+       \item Let $h0$ represent a 256-bit random nonce.
+       \item Let $h1$ represent a hash of $h0$ with SHA-256.
+       \item Let $h2$ represent a hash of $h1$ with SHA-256.
+       \item Let $h3$ represent a hash of $h2$ with SHA-256.
+       \end{itemize}
+    \item Let $z$ represent the 96-bit long unique identifier for 
+          the ZRTP endpoint. This is a random number generated at 
+          installation time to act as a key when looking up 
+          shared secrets in a local cache.
+    \item Let $fs$ represent a 4-bit long sequence of flags. 
+          The leading bit is 0, the second represents a 
+          signature-capable flag, the third a MiTM flag to 
+          identify that this message was sent from a PBX. The 
+          fourth and final bit represents a passive flag 
+          whichis only used on devices that send hello, 
+          but will never send commit messages.
+    \item Let $hc$ represent the number (count) of hashing 
+            algorithms.
+    \item Let $cc$ represent the number of cipher algorithms.
+    \item Let $ac$ represent the number of auth tag types.
+    \item Let $kc$ reresent the number of key agreement types.
+    \item Let $sc$ represent the number of SAS types.
+    \item Let $hs$ represent the ordered set of hashing algorithms.
+    \item Let $cs$ represent the set of cipher algorithms.
+    \item Let $as$ represent the set of SRTP auth tag types.
+    \item Let $ks$ represent the set of key agreement types.
+    \item Let $ss$ represents the set of short authentication 
+          string types.
+    \item Let $m$ represents the machine authentication code 
+          that finishes the ZRTP message.
+  \end{itemize}
+  \subsection*{Alice says Hello to Bob.}
+   $alice_0(p,v,c,h3,z,fs,hc,cc,ac,kc,sc,hs,cs,as,ks,ss,m)$
+  \subsection*{Bob receives Alice's Hello.}
+   $bob_0(p_{a0},v_{a0},c_{a0},h3_{a0},z_{a0},fs_{a0},hc_{a0}
+     ,cc_{a0},ac_{a0},kc_{a0},sc_{a0},hs_{a0},cs_{a0}
+          ,as_{a0},ks_{a0},ss_{a0},m_{a0})$
+  \subsection*{Bob acknowledges Alice's hello via HelloAck.}
+  $bob_1(p)$
+  \subsection*{Alice receives Bob's HelloAck}
+  $alice_1(p_{b1})$
+  \subsection*{Bob says Hello to Alice.}
+  $bob_2(p,v,c,h3,z,fs,hc,cc,ac,kc,sc,hs,cs,as,ks,ss,m)$
+  \subsection*{Alice receives Bob's Hello.}
+   $alice_2(p_{b2},v_{b2},c_{b2},h3_{b2},z_{b2},fs_{b2},hc_{a0}
+     ,cc_{b2},ac_{b2},kc_{b2},sc_{b2},hs_{b2},cs_{b2}
+          ,as_{b2},ks_{b2},ss_{b2},m_{b2})$
+  \subsection*{Alice acknowledges Bob's Hello via HelloAck.}
+  $alice_3(p)$
+  \subsection*{Bob receives Alice's HelloAck.}
+  $bob_3(p_{a3})$
+  \section*{The Commit and DHPart Messages.}
   test
-  \subsection{Messages}
-  \subsubsection{Hello}
-  Alice says hello to Bob.
-  \begin{align*}
-          alice_0(p, v, cid, h3, zid, flags, hashAlgs, 
-            cipherAlgs, authTags, keyAgreements, SAStypes, mac)
-  \end{align*}
-
 
 \end{document}

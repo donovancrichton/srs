@@ -24,10 +24,9 @@ docs:
 	@mkdir -p $(PPATH)/$(DOCPATH)
 	@mv $(PPATH)/$(SRC)/$(TARGET3).pdf $(PPATH)/$(DOCPATH)
 	#clean up after latexmk
-	@rm $(PPATH)/$(SRC)/*.aux
-	@rm $(PPATH)/$(SRC)/*.fls
-	@rm $(PPATH)/$(SRC)/*.fdb_latexmk
+	#@rm $(PPATH)/$(SRC)/*.aux
+	#@rm $(PPATH)/$(SRC)/*.fls
+	#@rm $(PPATH)/$(SRC)/*.fdb_latexmk
   
 clean:
-	@rm -f $(PPATH)/bin/$(TARGET1)
-	@rm -f $(PPATH)/bin/$(TARGET2)
+	@rm $(PPATH)/$(DOCPATH)/$(TARGET3).pdf
