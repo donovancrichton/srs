@@ -1,0 +1,59 @@
+\documentclass[11pt]{article}
+\usepackage{epsfig}
+\usepackage{cite}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\setlength\topmargin{1.5pc} \setlength\textheight{600pt}
+\setlength\textwidth{32pc}
+
+\newcommand{\dbtable}[5]{{\small\begin{tabular}[t]{#2}
+      \hline
+      \multicolumn{#1}{|l|}{#3} \\
+      \hline \hline
+      #4 \\
+      \hline
+      #5 \\
+      \hline
+\end{tabular}}}
+\title{Verified Time Balancing of Security Protocols 
+  \\ \large A Case Study}
+
+\author{Student Name: Donovan Crichton\\
+Student Number: u6881864}
+\date{}
+
+
+\begin{document}
+
+\maketitle
+
+\section*{A description of the ZRTP Protocol}
+  \subsection*{Syntax}
+  \subsubsection{$p$}
+  $p$ represents the message preamble $0x505a$ followed
+  by a 16-bit length in 32-bit words, followed by the message
+  type 2-word block string (e.g.) ``hello''.
+  \subsubsection{$v$}
+  $v$ represents the 4-character long string containing the
+  version of the ZRTP protocol.
+  \subsubsection{$cid$}
+  $cid$ represents the client identificationn string which
+  identifies the vendor and release of the ZRTP software.
+  \subsubsection($h3$)
+  $h3$ represents the following: \\
+    $h0$ representing a 256-bit random nonce. \\
+    $h1$ representing a hash of $h0$ with SHA-256.\\
+    $h2$ representing a hash of $h1$ with SHA-256.\\
+    $h3$ representing a hash of $h2$ with SHA-256.
+  \subsubsection($zid$)
+  test
+  \subsection{Messages}
+  \subsubsection{Hello}
+  Alice says hello to Bob.
+  \begin{align*}
+          alice_0(p, v, cid, h3, zid, flags, hashAlgs, 
+            cipherAlgs, authTags, keyAgreements, SAStypes, mac)
+  \end{align*}
+
+
+\end{document}
