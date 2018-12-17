@@ -26,17 +26,16 @@ Student Number: u6881864}
 \begin{document}
 
 \maketitle
-  \section*{The Message Preamble}
+  \section{The Message Preamble}
   All ZRTP Messages are prefixed by a preamble, message length
   and message type. 
   \begin{itemize}
   \item Let $p$ represent the message preamble $0x505a$ followed
-        by a 16-bit length in 32-bit words, followed by the 
+        by a 16-bit message length in 32-bit words, followed by the 
         message type 2-word block string (e.g. ``hello'').
   \end{itemize}
-  \section*{The Hello Messages}
+  \section{The Hello Messages}
   \begin{itemize}
-    \item Let $p$ represent the message preamble.
     \item Let $v$ represent the 4-character long string containing 
           the version of the ZRTP protocol.
     \item Let $c$ represent the client identification string which
@@ -74,27 +73,52 @@ Student Number: u6881864}
     \item Let $m$ represents the machine authentication code 
           that finishes the ZRTP message.
   \end{itemize}
-  \subsection*{Alice says Hello to Bob.}
+  \subsection*{Alice says Hello to Bob}
    $alice_0(p,v,c,h3,z,fs,hc,cc,ac,kc,sc,hs,cs,as,ks,ss,m)$
-  \subsection*{Bob receives Alice's Hello.}
+  \subsection*{Bob receives Alice's Hello}
    $bob_0(p_{a0},v_{a0},c_{a0},h3_{a0},z_{a0},fs_{a0},hc_{a0}
      ,cc_{a0},ac_{a0},kc_{a0},sc_{a0},hs_{a0},cs_{a0}
           ,as_{a0},ks_{a0},ss_{a0},m_{a0})$
-  \subsection*{Bob acknowledges Alice's hello via HelloAck.}
+  \subsection*{Bob acknowledges Alice's hello via HelloAck}
   $bob_1(p)$
   \subsection*{Alice receives Bob's HelloAck}
   $alice_1(p_{b1})$
-  \subsection*{Bob says Hello to Alice.}
+  \subsection*{Bob says Hello to Alice}
   $bob_2(p,v,c,h3,z,fs,hc,cc,ac,kc,sc,hs,cs,as,ks,ss,m)$
-  \subsection*{Alice receives Bob's Hello.}
+  \subsection*{Alice receives Bob's Hello}
    $alice_2(p_{b2},v_{b2},c_{b2},h3_{b2},z_{b2},fs_{b2},hc_{a0}
      ,cc_{b2},ac_{b2},kc_{b2},sc_{b2},hs_{b2},cs_{b2}
           ,as_{b2},ks_{b2},ss_{b2},m_{b2})$
-  \subsection*{Alice acknowledges Bob's Hello via HelloAck.}
+  \subsection*{Alice acknowledges Bob's Hello via HelloAck}
   $alice_3(p)$
-  \subsection*{Bob receives Alice's HelloAck.}
+  \subsection*{Bob receives Alice's HelloAck}
   $bob_3(p_{a3})$
-  \section*{The Commit and DHPart Messages.}
+  \section*{The Commit Message}
+  \begin{itemize}
+    \item Let $ha$ represent the negotiated hash algorithm.
+    \item Let $ca$ represent the negotiated cipher algorithm.
+    \item Let $at$ represent the negotiated auth-tag type.
+    \item Let $kt$ represent the negotiated key-agreement type.
+    \item Let $st$ represent the negotiated short authentication
+            string type.
+    \item Let $hvi$ represent the initatiors hash value where:
+      \begin{itemize}
+        \item Let $svi$ represent a random number.
+        \item Let $g$ represent the base.
+        \item Let $p$ represent the prime modulus.
+        \item $svi$, $g$, and $p$ are all functions of $kt$
+              such that: 
+        \item Let $pvi = mod(g^{svi},p)$
+        \item Let $||$ denote bitwise concatenation
+        \item Let $dh2i$ represent the initiators DH Part 2 Message.
+        \item Let $hellor$ represent the responders Hello Message.
+        \item $hvi = ha(dh2i || hellor)$
+      \end{itemize}
+  \end{itemize}
+  \subsection{Bob sends a Commit to Alice}
+  $bob_4(p,h2,z,ha,ca,at,kt,st,hvi,m)$
+  \subsection{Alice receives Bob's Commit}
   test
+  \section{The DH Part 2 Message}
 
 \end{document}
