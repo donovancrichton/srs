@@ -70,6 +70,7 @@ Student Number: u6881864}
     \item Let $ks$ represent the set of key agreement types.
     \item Let $ss$ represents the set of short authentication 
           string types.
+    %TODO: Figure out what m actually does.
     \item Let $m$ represents the machine authentication code 
           that finishes the ZRTP message.
   \end{itemize}
@@ -108,8 +109,8 @@ Student Number: u6881864}
         \item Let $p$ represent the prime modulus.
         \item $svi$, $g$, and $p$ are all functions of $kt$
               such that: 
-        \item Let $pvi = mod(g^{svi},p)$
-        \item Let $||$ denote bitwise concatenation
+        \item Let $pvi = mod(g^{svi},p)$.
+        \item Let $||$ denote bitwise concatenation.
         \item Let $dh2i$ represent the initiators DH Part 2 Message.
         \item Let $hellor$ represent the responders Hello Message.
         \item $hvi = ha(dh2i || hellor)$
@@ -120,7 +121,63 @@ Student Number: u6881864}
   \subsection{Alice receives Bob's Commit}
   $alice_4(p_{b4},h2_{b4},z_{b4},ha_{b4},ca_{b4},at_{b4},kt_{b4}
     ,st_{b4},hvi_{b4},m_{b4})$
+  \section{The DH Part 1 Message}
+  \begin{itemize}
+    \item Let $rstr$ represent a message denoting ``Responder''.
+    \item Let $s1r$ represent the responders first shared secret
+          if it exists, or null otherwise.
+    \item Let $s2r$ represent the responders second shared secret
+          if it exists, or null otherwise.
+    \item Let $rs1r = m(s1r,rstr)$ represent the non-invertible 
+          hash of the responders first retained shared secret.
+    \item Let $rs2r = m(m2r,rstr)$ represent the non-invertible
+          hash of the responders second retained shared secret.
+    \item Let $auxr$ represent the responders auxiliary shared 
+          secret.
+    \item Let $rh3$ represent the responder H3 value.
+    \item Let $asr = m(aux,rh3)$ represent the non-invertible hash
+          of the responders auxiliary shared secret.
+    \item Let $pbxr$ represent the responders pbx shared secret.
+    \item Let $psr = m(pbx,rstr)$ represent the non-invertible
+          hash of the responders pbx shared secret.
+    \item Let $pvr$ represent the responders hash value where:
+      \begin{itemize}
+        \item Let $svr$ represent a random number.
+        \item Let $g$ represent the base.
+        \item Let $p$ represent the prime modulus.
+        \item $svr$, $g$, and $p$ are all functions of $kt$
+              such that: 
+        \item Let $pvr = mod(g^{svr},p)$.
+        \item Let $||$ denote bitwise concatenation.
+        \item Let $dh2i$ represent the initiators DH Part 2 Message.
+        \item Let $hellor$ represent the responders Hello Message.
+        \item $hvi = ha(dh2i || hellor)$
+      \end{itemize}
+  \end{itemize}
+  
   \section{The DH Part 2 Message}
+  \begin{itemize}
+    \item Let $istr$ represent a message denoting ``Initiator''.
+    \item Let $s1$ represent the initiators first shared secret if
+          it exists or null otherwise.
+    \item Let $s2$ represent the initiators second shared secret if
+          it exists or null otherwise.
+    \item Let $rs1 = m(s1,istr)$ represent the non-invertible hash 
+          of the initiators first retained shared secret.
+    \item Let $rs2 = m(s2,istr)$ represent the non-invertible hash
+          of the intiators second retained shared secret.
+    \item Let $aux$ represet the auxiliary shared secret.
+    \item Let $ih3$ represent the initiators H3 value.
+    \item Let $asi = m(aux,ih3)$ represent the non-invertible hash
+          of the initiators auxiliary shared secret.
+    \item Let $pbx$ represent the pbx shared secret.
+    \item Let $psi = m(pbx,istr)$ represent the non-invertible
+          hash of the initiators pbx shared secret.
+    
+  \end{itemize}
+                  
+                  
+  
 
 
 \end{document}
