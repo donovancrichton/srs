@@ -30,7 +30,7 @@ Student Number: u6881864}
   All ZRTP Messages are prefixed by a preamble, message length
   and message type. 
   \begin{itemize}
-  \item Let $p$ represent the message preamble $0x505a$ followed
+  \item Let $pr$ represent the message preamble $0x505a$ followed
         by a 16-bit message length in 32-bit words, followed by the 
         message type 2-word block string (e.g. ``hello'').
   \end{itemize}
@@ -75,25 +75,25 @@ Student Number: u6881864}
           that finishes the ZRTP message.
   \end{itemize}
   \subsection*{Alice says Hello to Bob}
-   $alice_0(p,v,c,h3,z,fs,hc,cc,ac,kc,sc,hs,cs,as,ks,ss,m)$
+   $alice_0(pr,v,c,h3,z,fs,hc,cc,ac,kc,sc,hs,cs,as,ks,ss,m)$
   \subsection*{Bob receives Alice's Hello}
-   $bob_0(p_{a0},v_{a0},c_{a0},h3_{a0},z_{a0},fs_{a0},hc_{a0}
+   $bob_0(pr_{a0},v_{a0},c_{a0},h3_{a0},z_{a0},fs_{a0},hc_{a0}
      ,cc_{a0},ac_{a0},kc_{a0},sc_{a0},hs_{a0},cs_{a0}
           ,as_{a0},ks_{a0},ss_{a0},m_{a0})$
   \subsection*{Bob acknowledges Alice's hello via HelloAck}
-  $bob_1(p)$
+  $bob_1(pr)$
   \subsection*{Alice receives Bob's HelloAck}
-  $alice_1(p_{b1})$
+  $alice_1(pr_{b1})$
   \subsection*{Bob says Hello to Alice}
-  $bob_2(p,v,c,h3,z,fs,hc,cc,ac,kc,sc,hs,cs,as,ks,ss,m)$
+  $bob_2(pr,v,c,h3,z,fs,hc,cc,ac,kc,sc,hs,cs,as,ks,ss,m)$
   \subsection*{Alice receives Bob's Hello}
-   $alice_2(p_{b2},v_{b2},c_{b2},h3_{b2},z_{b2},fs_{b2},hc_{a0}
+   $alice_2(pr_{b2},v_{b2},c_{b2},h3_{b2},z_{b2},fs_{b2},hc_{a0}
      ,cc_{b2},ac_{b2},kc_{b2},sc_{b2},hs_{b2},cs_{b2}
           ,as_{b2},ks_{b2},ss_{b2},m_{b2})$
   \subsection*{Alice acknowledges Bob's Hello via HelloAck}
-  $alice_3(p)$
+  $alice_3(pr)$
   \subsection*{Bob receives Alice's HelloAck}
-  $bob_3(p_{a3})$
+  $bob_3(pr_{a3})$
   \section*{The Commit Message}
   \begin{itemize}
     \item Let $ha$ represent the negotiated hash algorithm.
@@ -116,12 +116,14 @@ Student Number: u6881864}
         \item $hvi = ha(dh2i || hellor)$
       \end{itemize}
   \end{itemize}
-  \subsection{Bob sends a Commit to Alice}
-  $bob_4(p,h2,z,ha,ca,at,kt,st,hvi,m)$
-  \subsection{Alice receives Bob's Commit}
-  $alice_4(p_{b4},h2_{b4},z_{b4},ha_{b4},ca_{b4},at_{b4},kt_{b4}
-    ,st_{b4},hvi_{b4},m_{b4})$
-  \section{The DH Part 1 Message}
+  \subsection*{Bob prepares a DH Part 2 Message}
+  $bob_4(pr,h1,rs1i,rs2i,asi,psi,pvi,m)$
+  \subsection*{Bob sends a Commit to Alice}
+  $bob_5(pr,h2,z,ha,ca,at,kt,st,hvi,m)$
+  \subsection*{Alice receives Bob's Commit}
+  $alice_4(pr_{b5},h2_{b5},z_{b5},ha_{b5},ca_{b5},at_{b5},kt_{b5}
+    ,st_{b5},hvi_{b5},m_{b5})$
+  \section*{The DH Part 1 Message}
   \begin{itemize}
     \item Let $rstr$ represent a message denoting ``Responder''.
     \item Let $s1r$ represent the responders first shared secret
@@ -135,7 +137,7 @@ Student Number: u6881864}
     \item Let $auxr$ represent the responders auxiliary shared 
           secret.
     \item Let $rh3$ represent the responder H3 value.
-    \item Let $asr = m(aux,rh3)$ represent the non-invertible hash
+    \item Let $asr = m(auxr,rh3)$ represent the non-invertible hash
           of the responders auxiliary shared secret.
     \item Let $pbxr$ represent the responders pbx shared secret.
     \item Let $psr = m(pbx,rstr)$ represent the non-invertible
@@ -148,36 +150,53 @@ Student Number: u6881864}
         \item $svr$, $g$, and $p$ are all functions of $kt$
               such that: 
         \item Let $pvr = mod(g^{svr},p)$.
-        \item Let $||$ denote bitwise concatenation.
-        \item Let $dh2i$ represent the initiators DH Part 2 Message.
-        \item Let $hellor$ represent the responders Hello Message.
-        \item $hvi = ha(dh2i || hellor)$
       \end{itemize}
   \end{itemize}
-  
-  \section{The DH Part 2 Message}
+  \subsection*{Alice sends DH Part 1 to Bob}
+  $alice_5=(pr,h1,rs1r,rs2r,asr,psr,pvr,m)$
+  \subsection*{Bob receives Alice's DH Part 1}
+  $bob_6=(pr_{a5},h1_{a5},rs1r_{a5},rs2r_{a5},asr_{a5},psr_{a5},
+           pvr_{a5},m_{a5})$
+  \subsection*{Bob checks Alice's DH Part 1 and calculates DH 
+               Result}
+  \begin{itemize}
+    \item if $pvr_{a5} = p_{b5}$ or $pvr_{a5} = p_{b5} - 1$ then 
+          terminate protocol. Otherwise continue:
+    \item Let $dhr = mod(pvr_{a5}^{svi_{b5}},p)$ represent the 
+          DH result.
+  \end{itemize}
+  \section*{The DH Part 2 Message}
   \begin{itemize}
     \item Let $istr$ represent a message denoting ``Initiator''.
     \item Let $s1$ represent the initiators first shared secret if
           it exists or null otherwise.
     \item Let $s2$ represent the initiators second shared secret if
           it exists or null otherwise.
-    \item Let $rs1 = m(s1,istr)$ represent the non-invertible hash 
+    \item Let $rs1i = m(s1,istr)$ represent the non-invertible hash 
           of the initiators first retained shared secret.
-    \item Let $rs2 = m(s2,istr)$ represent the non-invertible hash
+    \item Let $rs2i = m(s2,istr)$ represent the non-invertible hash
           of the intiators second retained shared secret.
-    \item Let $aux$ represet the auxiliary shared secret.
+    \item Let $auxi$ represet the auxiliary shared secret.
     \item Let $ih3$ represent the initiators H3 value.
-    \item Let $asi = m(aux,ih3)$ represent the non-invertible hash
+    \item Let $asi = m(auxi,ih3)$ represent the non-invertible hash
           of the initiators auxiliary shared secret.
-    \item Let $pbx$ represent the pbx shared secret.
+    \item Let $pbxi$ represent the pbx shared secret.
     \item Let $psi = m(pbx,istr)$ represent the non-invertible
           hash of the initiators pbx shared secret.
-    
   \end{itemize}
-                  
-                  
-  
-
-
+  \subsection{Bob sends DH Part 2 to Alice}
+  $bob_7 = bob_4$
+  \subsubsection{Alice receives Bob's DH Part 2}
+  $alice_6(pr_{b7},h1_{b7},rs1i_{b7},rs2i_{b7},asi_{b7},
+           psi_{b7},pvi_{b7},m_{b7})$
+  \subsection*{Alice checks Bob's DH Part 2 and calculates DH 
+               Result}
+  \begin{itemize}
+    \item if $pvi_{b7} = p_{a5}$ or $pvr_{b7} = p_{a5} - 1$ then 
+          terminate protocol. Otherwise continue:
+    \item if $hash(bob_7 || alice_0) \neq hvi_b5$ then terminate 
+          protocol. Otherwise continue:
+    \item Let $dhr = mod(pvr_{b7}^{svi_{a5}},p)$ represent the 
+          DH result.
+  \end{itemize}
 \end{document}
