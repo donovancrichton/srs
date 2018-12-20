@@ -201,7 +201,10 @@ Student Number: u6881864}
     \item Let $dhr = mod(pvr_{b7}^{svi_{a5}},p)$ represent the 
           DH result.
   \end{itemize}
+  \newpage
   \section{A Simplification of ZRTP}
+  This section details a simplified model of the ZRTP protocol with the
+  purpose of identifying relevant computation for timing observability.
   \subsection{Negotiated Protocols}
   To simplify the formal verification of timing observability, 
   this simplified protocol will forgo the agreement process between
@@ -214,15 +217,55 @@ Student Number: u6881864}
     \item Let $at$ represent the agreed-upon auth tag type
           HS32 - based on HMAC-SHA1 in RFC 3711.
     \item Let $kt$ represent the agreed-upon key agreement
-          type DH2k, p=2048 Bit Prime as per RFC 3526.
+          type DH3k, p=3072 Bit Prime as per RFC 3526 section 4.
     \item Let $st$ represent the agreed-upon short authentication
           string type B32
   \end{itemize}
-  \subsubsection{The Hello and HelloAck Messages}
+  \subsection{The Hello and HelloAck Messages}
   If this protocol assumes pre-agreement on protocol parameters
   by Alice and Bob, and assumes that both Alice and Bob pre-compute
   $h0$, $h1$, $h2$, and $h3$ then the ``Hello'' messages and the 
   corresponding ``HelloAck'' messages can be considered to have
   a constant time, and thus possibly be ommited for the purpose of
-  verifying timing observability.
+  timing observability. \\
+  while $h3$ can be precalculated, it is important for the responder
+  to send this to the initiator as this allows the responder to validate
+  against the initiators DH Part 2 message.
+  \begin{itemize}
+    \item Let $h0$ represent a 256 bit random nonce.
+    \item Let $h1$ represent SHA-256 of $h0$
+    \item Let $h2$ represent SHA-256 of $h1$
+    \item Let $h3$ represent SHA-256 of $h2$
+  \end{itemize}
+  \subsubsection{Alice sends Hello}
+  $alice_0(h3_{a0})$
+  \subsubsection{Bob sends Hello}
+  $bob_0(h3_{b0})$
+  \subsection{The Commit Message}
+  Given the assumptions above, the commit message contains the following
+  components that are required to be computed by the initiator.
+  \begin{itemize}
+    \item Let $hvi$ represent the initiators hash value under DH3k key
+      agreement type, such that:
+      \begin{itemize}
+        \item Let $svi$ represent a random 3072 bit number under the DH3k key
+              agreement type.
+        \item Let $p = 2^{3072} - 2^3008 - 1 + 2^64(2^2942\pi + 1690314)$ represent
+              the prime number under the DH3k key agreement type.
+        \item Let $g = 2$ represent the generator under the DH3k key agreement
+              type.
+        \item Let $pvi = mod(g^svi, p)$ represent the public value of the
+              initiator.
+        \item Let $dh2i$ represent the precalculation of the DH Part 2 message
+              by the initator in order to compute part of the $hvi$.
+        \item Let $h3_{a0}$ represent Alice's Hello message that Bob has
+              received.
+        \item Let $||$ denote bitwise concatenation.
+        \item Then $hvi = ha(dh2i||h3_{a0})$ 
+      \end{itemize}
+  \end{itemize}
+  \subsubsection{Bob precalculates DH Part 2}
+  $bob_1=(h3_{b0},pvi)$
+  \subsubsection{Bob sends a Commit to Alice}
+  $bob_2(h2_{b1},hvi)$
 \end{document}
