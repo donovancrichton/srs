@@ -26,7 +26,9 @@ Student Number: u6881864}
 \begin{document}
 
 \maketitle
-  \section{The Message Preamble}
+  \section{A description of the ZRTP Protocol up to public key 
+           exposure.}
+  \subsection{The Message Preamble}
   All ZRTP Messages are prefixed by a preamble, message length
   and message type. 
   \begin{itemize}
@@ -74,27 +76,27 @@ Student Number: u6881864}
     \item Let $m$ represents the machine authentication code 
           that finishes the ZRTP message.
   \end{itemize}
-  \subsection*{Alice says Hello to Bob}
+  \subsubsection{Alice says Hello to Bob}
    $alice_0(pr,v,c,h3,z,fs,hc,cc,ac,kc,sc,hs,cs,as,ks,ss,m)$
-  \subsection*{Bob receives Alice's Hello}
+  \subsubsection{Bob receives Alice's Hello}
    $bob_0(pr_{a0},v_{a0},c_{a0},h3_{a0},z_{a0},fs_{a0},hc_{a0}
      ,cc_{a0},ac_{a0},kc_{a0},sc_{a0},hs_{a0},cs_{a0}
           ,as_{a0},ks_{a0},ss_{a0},m_{a0})$
-  \subsection*{Bob acknowledges Alice's hello via HelloAck}
+  \subsubsection{Bob acknowledges Alice's hello via HelloAck}
   $bob_1(pr)$
-  \subsection*{Alice receives Bob's HelloAck}
+  \subsubsection{Alice receives Bob's HelloAck}
   $alice_1(pr_{b1})$
-  \subsection*{Bob says Hello to Alice}
+  \subsubsection{Bob says Hello to Alice}
   $bob_2(pr,v,c,h3,z,fs,hc,cc,ac,kc,sc,hs,cs,as,ks,ss,m)$
-  \subsection*{Alice receives Bob's Hello}
+  \subsubsection{Alice receives Bob's Hello}
    $alice_2(pr_{b2},v_{b2},c_{b2},h3_{b2},z_{b2},fs_{b2},hc_{a0}
      ,cc_{b2},ac_{b2},kc_{b2},sc_{b2},hs_{b2},cs_{b2}
           ,as_{b2},ks_{b2},ss_{b2},m_{b2})$
-  \subsection*{Alice acknowledges Bob's Hello via HelloAck}
+  \subsubsection{Alice acknowledges Bob's Hello via HelloAck}
   $alice_3(pr)$
-  \subsection*{Bob receives Alice's HelloAck}
+  \subsubsection{Bob receives Alice's HelloAck}
   $bob_3(pr_{a3})$
-  \section*{The Commit Message}
+  \subsection{The Commit Message}
   \begin{itemize}
     \item Let $ha$ represent the negotiated hash algorithm.
     \item Let $ca$ represent the negotiated cipher algorithm.
@@ -116,14 +118,14 @@ Student Number: u6881864}
         \item $hvi = ha(dh2i || hellor)$
       \end{itemize}
   \end{itemize}
-  \subsection*{Bob prepares a DH Part 2 Message}
+  \subsubsection{Bob prepares a DH Part 2 Message}
   $bob_4(pr,h1,rs1i,rs2i,asi,psi,pvi,m)$
-  \subsection*{Bob sends a Commit to Alice}
+  \subsubsection{Bob sends a Commit to Alice}
   $bob_5(pr,h2,z,ha,ca,at,kt,st,hvi,m)$
-  \subsection*{Alice receives Bob's Commit}
+  \subsubsection{Alice receives Bob's Commit}
   $alice_4(pr_{b5},h2_{b5},z_{b5},ha_{b5},ca_{b5},at_{b5},kt_{b5}
     ,st_{b5},hvi_{b5},m_{b5})$
-  \section*{The DH Part 1 Message}
+  \subsection{The DH Part 1 Message}
   \begin{itemize}
     \item Let $rstr$ represent a message denoting ``Responder''.
     \item Let $s1r$ represent the responders first shared secret
@@ -152,12 +154,12 @@ Student Number: u6881864}
         \item Let $pvr = mod(g^{svr},p)$.
       \end{itemize}
   \end{itemize}
-  \subsection*{Alice sends DH Part 1 to Bob}
+  \subsubsection{Alice sends DH Part 1 to Bob}
   $alice_5=(pr,h1,rs1r,rs2r,asr,psr,pvr,m)$
-  \subsection*{Bob receives Alice's DH Part 1}
+  \subsubsection{Bob receives Alice's DH Part 1}
   $bob_6=(pr_{a5},h1_{a5},rs1r_{a5},rs2r_{a5},asr_{a5},psr_{a5},
            pvr_{a5},m_{a5})$
-  \subsection*{Bob checks Alice's DH Part 1 and calculates DH 
+  \subsubsection{Bob checks Alice's DH Part 1 and calculates DH 
                Result}
   \begin{itemize}
     \item if $pvr_{a5} = p_{b5}$ or $pvr_{a5} = p_{b5} - 1$ then 
@@ -165,7 +167,7 @@ Student Number: u6881864}
     \item Let $dhr = mod(pvr_{a5}^{svi_{b5}},p)$ represent the 
           DH result.
   \end{itemize}
-  \section*{The DH Part 2 Message}
+  \subsection{The DH Part 2 Message}
   \begin{itemize}
     \item Let $istr$ represent a message denoting ``Initiator''.
     \item Let $s1$ represent the initiators first shared secret if
@@ -184,12 +186,12 @@ Student Number: u6881864}
     \item Let $psi = m(pbx,istr)$ represent the non-invertible
           hash of the initiators pbx shared secret.
   \end{itemize}
-  \subsection{Bob sends DH Part 2 to Alice}
+  \subsubsection{Bob sends DH Part 2 to Alice}
   $bob_7 = bob_4$
   \subsubsection{Alice receives Bob's DH Part 2}
   $alice_6(pr_{b7},h1_{b7},rs1i_{b7},rs2i_{b7},asi_{b7},
            psi_{b7},pvi_{b7},m_{b7})$
-  \subsection*{Alice checks Bob's DH Part 2 and calculates DH 
+  \subsubsection{Alice checks Bob's DH Part 2 and calculates DH 
                Result}
   \begin{itemize}
     \item if $pvi_{b7} = p_{a5}$ or $pvr_{b7} = p_{a5} - 1$ then 
@@ -199,4 +201,28 @@ Student Number: u6881864}
     \item Let $dhr = mod(pvr_{b7}^{svi_{a5}},p)$ represent the 
           DH result.
   \end{itemize}
+  \section{A Simplification of ZRTP}
+  \subsection{Negotiated Protocols}
+  To simplify the formal verification of timing observability, 
+  this simplified protocol will forgo the agreement process between
+  the parties and all parties will assume the following:
+  \begin{itemize}
+    \item Let $ha$ represent the agreed-upon hash algorithm 
+          SHA-256.
+    \item Let $ca$ represent the agreed-upon cipher algorithm 
+          AES-1.
+    \item Let $at$ represent the agreed-upon auth tag type
+          HS32 - based on HMAC-SHA1 in RFC 3711.
+    \item Let $kt$ represent the agreed-upon key agreement
+          type DH2k, p=2048 Bit Prime as per RFC 3526.
+    \item Let $st$ represent the agreed-upon short authentication
+          string type B32
+  \end{itemize}
+  \subsubsection{The Hello and HelloAck Messages}
+  If this protocol assumes pre-agreement on protocol parameters
+  by Alice and Bob, and assumes that both Alice and Bob pre-compute
+  $h0$, $h1$, $h2$, and $h3$ then the ``Hello'' messages and the 
+  corresponding ``HelloAck'' messages can be considered to have
+  a constant time, and thus possibly be ommited for the purpose of
+  verifying timing observability.
 \end{document}
