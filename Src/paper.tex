@@ -58,13 +58,13 @@ Student Number: u6881864}
           signature-capable flag, the third a MiTM flag to 
           identify that this message was sent from a PBX. The 
           fourth and final bit represents a passive flag 
-          whichis only used on devices that send hello, 
+          which is only used on devices that send hello, 
           but will never send commit messages.
     \item Let $hc$ represent the number (count) of hashing 
             algorithms.
     \item Let $cc$ represent the number of cipher algorithms.
     \item Let $ac$ represent the number of auth tag types.
-    \item Let $kc$ reresent the number of key agreement types.
+    \item Let $kc$ represent the number of key agreement types.
     \item Let $sc$ represent the number of SAS types.
     \item Let $hs$ represent the ordered set of hashing algorithms.
     \item Let $cs$ represent the set of cipher algorithms.
@@ -104,7 +104,7 @@ Student Number: u6881864}
     \item Let $kt$ represent the negotiated key-agreement type.
     \item Let $st$ represent the negotiated short authentication
             string type.
-    \item Let $hvi$ represent the initatiors hash value where:
+    \item Let $hvi$ represent the initiators hash value where:
       \begin{itemize}
         \item Let $svi$ represent a random number.
         \item Let $g$ represent the base.
@@ -112,7 +112,7 @@ Student Number: u6881864}
         \item $svi$, $g$, and $p$ are all functions of $kt$
               such that: 
         \item Let $pvi = mod(g^{svi},p)$.
-        \item Let $||$ denote bitwise concatenation.
+        \item Let $||$ denote bit-wise concatenation.
         \item Let $dh2i$ represent the initiators DH Part 2 Message.
         \item Let $hellor$ represent the responders Hello Message.
         \item $hvi = ha(dh2i || hellor)$
@@ -177,8 +177,8 @@ Student Number: u6881864}
     \item Let $rs1i = m(s1,istr)$ represent the non-invertible hash 
           of the initiators first retained shared secret.
     \item Let $rs2i = m(s2,istr)$ represent the non-invertible hash
-          of the intiators second retained shared secret.
-    \item Let $auxi$ represet the auxiliary shared secret.
+          of the initiators second retained shared secret.
+    \item Let $auxi$ represent the auxiliary shared secret.
     \item Let $ih3$ represent the initiators H3 value.
     \item Let $asi = m(auxi,ih3)$ represent the non-invertible hash
           of the initiators auxiliary shared secret.
@@ -226,9 +226,9 @@ Student Number: u6881864}
   by Alice and Bob, and assumes that both Alice and Bob pre-compute
   $h0$, $h1$, $h2$, and $h3$ then the ``Hello'' messages and the 
   corresponding ``HelloAck'' messages can be considered to have
-  a constant time, and thus possibly be ommited for the purpose of
+  a constant time, and thus possibly be omitted for the purpose of
   timing observability. \\
-  while $h3$ can be precalculated, it is important for the responder
+  while $h3$ can be pre-calculated, it is important for the responder
   to send this to the initiator as this allows the responder to validate
   against the initiators DH Part 2 message.
   \begin{itemize}
@@ -241,7 +241,7 @@ Student Number: u6881864}
   $alice_0(h3_{a0})$
   \subsubsection{Bob sends Hello}
   $bob_0(h3_{b0})$
-  \subsection{The Commit Message}
+  \subsection{The Commit Message} \label{commit}
   Given the assumptions above, the commit message contains the following
   components that are required to be computed by the initiator.
   \begin{itemize}
@@ -255,17 +255,69 @@ Student Number: u6881864}
         \item Let $g = 2$ represent the generator under the DH3k key agreement
               type.
         \item Let $pvi = mod(g^svi, p)$ represent the public value of the
-              initiator.
-        \item Let $dh2i$ represent the precalculation of the DH Part 2 message
-              by the initator in order to compute part of the $hvi$.
+              initiator. 
+        \item Let $dh2i$ represent the calculation of the DH Part 2 message
+              by the initiator in order to compute part of the $hvi$.
         \item Let $h3_{a0}$ represent Alice's Hello message that Bob has
               received.
-        \item Let $||$ denote bitwise concatenation.
+        \item Let $||$ denote bit-wise concatenation.
         \item Then $hvi = ha(dh2i||h3_{a0})$ 
       \end{itemize}
   \end{itemize}
-  \subsubsection{Bob precalculates DH Part 2}
-  $bob_1=(h3_{b0},pvi)$
+  \subsubsection{Bob pre-calculates DH Part 2}
+  $bob_1=(h1_{b0},pvi)$
   \subsubsection{Bob sends a Commit to Alice}
   $bob_2(h2_{b1},hvi)$
+  \subsection{The DH Part 1 Message}
+  The DH Part 1 message is composed primarily of book keeping parameters
+  regarding previous shared secrets between the responder and initiator. These
+  details will be omitted in this simplified model in the interest of brevity as
+  they do not require any computing beyond a simple looking and hash.
+  \begin{itemize}
+    \item Let $pvr$ represent the responders public hash value under the DH3k
+      key agreement type where:
+      \begin{itemize}
+        \item Let $svr$ represent a random 3072 bit number under the DH3k key
+              agreement type.
+        \item Let $p = 2^{3072} - 2^3008 - 1 + 2^64(2^2942\pi + 1690314)$ represent
+              the prime number under the DH3k key agreement type.
+        \item Let $g = 2$ represent the generator under the DH3k key agreement
+              type.
+        \item Let $pvr = mod(g^svr, p)$ represent the public value of the
+              initiator.
+      \end{itemize}
+  \end{itemize}
+  \subsubsection{Alice sends DH Part 1 to Bob}
+  $alice_1(h1_{a0},pvr)$
+
+  \subsubsection{Bob calculates the DH Result.}
+  \[
+    bob_3(pvr_{a1},svi_{b1},p_{b1})=
+    \begin{cases}
+      \text{Terminate Protocol}, &\text{if } pvr_{a1} = p_{b1} \\
+      \text{Terminate Protocol}, &\text{otherwise if } pvr_{a1} = p_{b1} - 1 \\
+      \text{Let $dhr = mod(pvr_{a1}^{svi_{b1}},p)$}, &\text{otherwise.}
+    \end{cases}
+  \]
+  \subsection{The DH Part 2 Message}
+  This message is a mirror of the DH Part 1 Message from the initiators
+  viewpoint. The calculation of the $pvi$ is covered under section
+  \ref{commit}.
+
+  \subsubsection{Bob sends DH Part 2 to Alice}
+  $bob_4(h2_{b0},pvi_{b1})$
+
+  \subsubsection{Alice calculates the DH Result.}
+  \[
+    alice_2(pvr_{a1},svi_{b1},p_{b1})=
+    \begin{cases}
+      \text{Terminate Protocol}, &\text{if } pvr_{a1} = p_{b1} \\
+      \text{Terminate Protocol}, &\text{otherwise if } pvr_{a1} = p_{b1} - 1 \\
+      \text{Terminate Protocol}, &\text{otherwise if } ha(bob_4||alice_0) \neq
+      hvi_{b2} \\
+      \text{Let $dhr = mod(pvr_{a1}^{svi_{b1}},p)$}, &\text{otherwise.}
+    \end{cases}
+  \]
+
+ 
 \end{document}
