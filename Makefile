@@ -1,18 +1,23 @@
 PPATH:=$(shell pwd)
-TARGET1=BANNHL
+TARGET1=Simple
 TARGET2=BANNHC
 TARGET3=paper
 
 DOCPATH=Docs
-CC=idris
-CFLAGS=-O2 -o
+IC=idris
+IFLAGS=--codegen c $(TARGET1).idr -o $(TARGET1)
 DC=latexmk
 DFLAGS=-pdf -f -shell-escape
 SRC=Src
+EXP=Experiments
 
 .PHONY: docs
 
 all: docs
+
+simple:
+	@cd $(PPATH)/$(SRC)/$(EXP); $(IC) $(IFLAGS)
+	@mv $(TARGET1) ../../Bin/
 
 docs:
 	@cd $(PPATH)/$(SRC)/; $(DC) $(DFLAGS) $(TARGET3).tex
