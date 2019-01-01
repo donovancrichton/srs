@@ -4,8 +4,8 @@ TARGET2=BANNHC
 TARGET3=paper
 
 DOCPATH=Docs
-IC=idris
-IFLAGS=--codegen c $(TARGET1).idr -o $(TARGET1)
+CC=idris
+CFLAGS=--codegen c $(TARGET1).idr -o $(TARGET1)
 DC=latexmk
 DFLAGS=-pdf -f -shell-escape
 SRC=Src
@@ -13,13 +13,13 @@ EXP=Experiments
 
 .PHONY: docs
 
-all: docs
+all: simple-c docs
 
-simple:
-	@cd $(PPATH)/$(SRC)/$(EXP); $(IC) $(IFLAGS)
-	@mv $(TARGET1) ../../Bin/
-	@rm $(TARGET1).ibc
-	@rm $(TARGET1).idr~
+simple-c:
+	@cd $(PPATH)/$(SRC)/$(EXP); $(CC) $(CFLAGS)
+	@mv $(PPATH)/$(SRC)/$(EXP)/$(TARGET1) $(PPATH)/Bin/
+	@rm $(PPATH)/$(SRC)/$(EXP)/$(TARGET1).ibc
+	@rm $(PPATH)/$(SRC)/$(EXP)/$(TARGET1).idr~
 
 docs:
 	@cd $(PPATH)/$(SRC)/; $(DC) $(DFLAGS) $(TARGET3).tex

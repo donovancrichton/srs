@@ -32,7 +32,7 @@ implementation Cast (List Bits8) (Bits 256) where
 main : IO ()
 main = do
   -- open dev/urandom or exit on failure
-  Right randFile <- openFile "/dev/urandom" Read 
+  Right randFile <- openFile "/dev/urandom" Read
   | Left err => putStrLn (show err)
   -- create a buffer with 32 bytes or exit on failure
   Just buffer <- newBuffer 32
@@ -43,7 +43,6 @@ main = do
   bs <- bufferData rawBuffer
   -- convert to a binary string representation
   let bits = cast bs {to=Bits 256}
-  putStrLn (bitsToStr bits)
-  pure ()
+  closeFile randFile
 
 
