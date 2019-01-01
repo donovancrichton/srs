@@ -18,6 +18,8 @@ all: docs
 simple:
 	@cd $(PPATH)/$(SRC)/$(EXP); $(IC) $(IFLAGS)
 	@mv $(TARGET1) ../../Bin/
+	@rm $(TARGET1).ibc
+	@rm $(TARGET1).idr~
 
 docs:
 	@cd $(PPATH)/$(SRC)/; $(DC) $(DFLAGS) $(TARGET3).tex
