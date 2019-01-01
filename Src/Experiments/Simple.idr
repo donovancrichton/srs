@@ -3,35 +3,37 @@ import Data.Buffer
 
 %default total
 
+-- This is very gross, but until I take time to look over
+-- the C FFI, this will have to do!
 binToDec : List Char -> (acc : Integer) -> Integer
 binToDec [] acc = acc
 binToDec (x :: xs) acc = 
-  let n = cast (cast x {to=Int}) {to=Integer} - 48
-      p = n * pow 2 (length (pack xs))
+  let n = cast (cast x {to=Int}) {to=Integer} - 48 -- ASCII
+      p = n * pow 2 (length xs)
       acc' = acc + p
   in binToDec xs acc'
 
 implementation Cast (List Bits8) (Bits 256) where
-  cast xs = bits
+  cast = int2bits . str2int . concatstr . bits2str
     where
-      strs : List String
-      strs = map b8ToBinString xs
+      bits2str : (List Bits8) -> List String
+      bits2str = \bs => map b8ToBinString bs
 
-      str : String
-      str = foldl (++) "" strs
+      concatstr : List String -> String
+      concatstr = \ss => foldl (++) "" ss
 
-      int : Integer
-      int = binToDec (unpack str) 0
+      str2int : String -> Integer
+      str2int = \s => binToDec (unpack s) 0
 
-      bits : Bits 256
-      bits = intToBits int {n=256}
+      int2bits : Integer -> Bits 256
+      int2bits = \k => intToBits k {n=256}
 
 -- nonce256 tries to read a 32 byte integer from a file
 -- at 'path' and returns just the integer or Nothing
 --
 -- Note: | is syntactic surgar for terminating cases
 -- in the Monadic sequence.
-nonce256 : String -> IO (Maybe (Bits 256))
+nonce256 : String -> IO $ Maybe $ Bits 256
 nonce256 path = do
   -- open dev/urandom or exit on failure
   Right randFile <- openFile path Read
