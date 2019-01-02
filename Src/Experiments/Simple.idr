@@ -7,6 +7,15 @@ BufferError = String
 
 data Error = FE FileError | BE BufferError
 
+implementation Cast String (List Bits8) where
+  cast s = map c2b8 cs
+    where 
+      cs : List Char
+      cs = unpack s
+
+      c2b8 : Char -> Bits8
+      c2b8 = fromInteger . (cast {to=Integer}) . (cast {to=Int})
+
 nonce256 : String -> IO $ Either Error $ List Bits8
 nonce256 path = do
   -- Try to open the file at 'path' as read only.
@@ -182,6 +191,13 @@ sha256 s = ks
           k40,k41,k42,k43,k44,k45,k46,k47,
           k48,k49,k50,k51,k52,k53,k54,k55,
           k56,k57,k58,k59,k60,k61,k62,k63]
+    
+    bitLength : Nat
+    bitLength = 8 * length s
+
+
+
+
 
 
 
