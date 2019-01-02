@@ -2,6 +2,13 @@ import Data.Buffer
 
 %default total
 
+-----------------------------PROOFS---------------------------
+divSmallerIsSmaller : (n, m : Nat) -> (prf : Not (m = Z)) -> 
+                      (prf2 : LTE (S m) n) -> 
+                      LTE (divNatNZ n m prf) n
+divSmallerIsSmaller Z m prf prf2 = absurd prf2
+divSmallerIsSmaller (S k) m prf prf2 = ?test2
+
 BufferError : Type
 BufferError = String
 
@@ -30,8 +37,10 @@ nonce256 path = do
   bytes <- bufferData buffer
   pure $ Right bytes
 
-sha256 : String -> List (List Bits8)
-sha256 s = ks
+-- TODO: move from List Bits8 to Vect n Bits8 to gain proofs
+--       about the length of byte vectors
+sha256 : String -> (Nat, Nat)
+sha256 s = (bitLength, padLength)
   where
     h0 : List Bits8
     h0 = [0x6a,0x90,0xe6,0x67]
@@ -194,6 +203,25 @@ sha256 s = ks
     
     bitLength : Nat
     bitLength = 8 * length s
+
+    padLength : Nat
+    padLength = l
+      where
+        l : Nat
+        l = bitLength
+
+        k : (n: Nat) -> Nat
+        k n with (isLTE (S n) 512) proof p
+          k n | Yes prf =
+            let prf2 = lteSuccLeft prf
+            in 512 - n
+          k n | No contra = 
+            let d = (divNatNZ n 512 SIsNotZ) + 1
+                prf = notLTImpliesGTE contra
+                m = d * 512
+            in ?wait
+
+
 
 
 
