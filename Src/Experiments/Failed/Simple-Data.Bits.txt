@@ -1,0 +1,5 @@
+This failed due to a bug in the implementation of
+Data.Bits, trying to print a 256 bit character as a string is 
+consuming all the memory in the systems resources.
+
+Note: Flag this as a bug?

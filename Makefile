@@ -18,8 +18,8 @@ all: simple-c docs
 simple-c:
 	@cd $(PPATH)/$(SRC)/$(EXP); $(CC) $(CFLAGS)
 	@mv $(PPATH)/$(SRC)/$(EXP)/$(TARGET1) $(PPATH)/Bin/
-	@rm $(PPATH)/$(SRC)/$(EXP)/$(TARGET1).ibc
-	@rm $(PPATH)/$(SRC)/$(EXP)/$(TARGET1).idr~
+	@rm -f $(PPATH)/$(SRC)/$(EXP)/$(TARGET1).ibc
+	@rm -f $(PPATH)/$(SRC)/$(EXP)/$(TARGET1).idr~
 
 docs:
 	@cd $(PPATH)/$(SRC)/; $(DC) $(DFLAGS) $(TARGET3).tex
@@ -31,9 +31,9 @@ docs:
 	@mkdir -p $(PPATH)/$(DOCPATH)
 	@mv $(PPATH)/$(SRC)/$(TARGET3).pdf $(PPATH)/$(DOCPATH)
 	#clean up after latexmk
-	#@rm $(PPATH)/$(SRC)/*.aux
-	#@rm $(PPATH)/$(SRC)/*.fls
-	#@rm $(PPATH)/$(SRC)/*.fdb_latexmk
+	@rm -f $(PPATH)/$(SRC)/*.aux
+	@rm -f $(PPATH)/$(SRC)/*.fls
+	@rm -f $(PPATH)/$(SRC)/*.fdb_latexmk
   
 clean:
 	@rm $(PPATH)/$(DOCPATH)/$(TARGET3).pdf
