@@ -2,6 +2,18 @@ import Data.Buffer
 
 %default total
 
+-----------------------CONNECTIVES---------------------------
+Iff : {p, q : Type} -> Type
+Iff {p} {q} = (p -> q, q -> p)
+
+syntax [p] "<-->" [q] = Iff {p} {q} 
+
+iff_sym : (p <--> q) -> (q <--> p)
+iff_sym (a, b) = (b, a)
+
+
+----------------PRELUDE REIMPLEMENTATIONS--------------------
+
 -- This is the helper function for 'myDiv' taken right
 -- out of Prelude.Nat.idr
 div' : Nat -> Nat -> Nat -> Nat
@@ -23,6 +35,20 @@ myDiv left (S right) _ = div' left left right
 
 -----------------------------LEMMAS---------------------------
 
+-- boolean reflection of 'lte'
+lteReflectsLTE : (n, m : Nat) -> (True = lte n m) <--> LTE n m
+lteReflectsLTE n m = (to n m, fro n m)
+  where
+    to : (k, j : Nat) -> (prf : True = lte k j) -> LTE k j
+    to Z j prf = LTEZero {right=j}
+    to (S i) j prf = 
+      let rec = \p => to i j p
+      in ?check
+
+    fro : (k, j : Nat) -> LTE k j -> True = lte k j
+    fro Z j prf = Refl
+    fro (S i) j prf = ?test
+
 divNNZisSZ : (k : Nat) -> div' k k Z = k
 divNNZisSZ Z = Refl
 divNNZisSZ (S k) = 
@@ -40,7 +66,7 @@ divNNKisNotGT (S k) Z = rewrite minusZeroRight k in
                           rewrite divNNZisSZ k in lteRefl
 divNNKisNotGT (S k) (S j) with (lte k j) proof p
   divNNKisNotGT (S k) (S j) | True = LTEZero
-  divNNKisNotGT (S k) (S j) | False = ?test
+  divNNKisNotGT (S k) (S j) | False = ?later
 
 minusNNalwaysZ : (n : Nat) -> minus n n = Z
 minusNNalwaysZ Z = Refl
