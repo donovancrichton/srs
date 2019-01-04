@@ -2,13 +2,78 @@ import Data.Buffer
 
 %default total
 
------------------------------PROOFS---------------------------
-divSmallerIsSmaller : (n, m : Nat) -> (prf : Not (m = Z)) -> 
-                      (prf2 : LTE (S m) n) -> 
-                      LTE (divNatNZ n m prf) n
-divSmallerIsSmaller Z m prf prf2 = absurd prf2
-divSmallerIsSmaller (S k) m prf prf2 = ?test2
+-- This is the helper function for 'myDiv' taken right
+-- out of Prelude.Nat.idr
+div' : Nat -> Nat -> Nat -> Nat
+div' Z centre right = Z
+div' (S left) centre right = 
+  if lte centre right 
+  then Z
+  else S (div' left (minus centre (S right)) right)
 
+-- This is the same as myDiv from the prelude, I've
+-- reimplemented it here so I can prove things about
+-- the helper function div', with a view towards submitting
+-- a pull request in Nat.idr with the associated proofs.
+myDiv : Nat -> (y: Nat) -> Not (y = Z) -> Nat
+myDiv left Z p = void (p Refl)
+myDiv left (S right) _ = div' left left right
+
+
+
+-----------------------------LEMMAS---------------------------
+
+divNNZisSZ : (k : Nat) -> div' k k Z = k
+divNNZisSZ Z = Refl
+divNNZisSZ (S k) = 
+  let rec = divNNZisSZ k
+  in rewrite minusZeroRight k in rewrite rec in Refl
+
+divCentreZIsZ : (k : Nat) -> div' k Z k = Z
+divCentreZIsZ Z = Refl
+divCentreZIsZ (S k) = Refl
+
+divNNKisNotGT : (n, m : Nat) -> LTE (div' n n m) n
+divNNKisNotGT Z Z = lteRefl
+divNNKisNotGT Z (S k) = lteRefl
+divNNKisNotGT (S k) Z = rewrite minusZeroRight k in
+                          rewrite divNNZisSZ k in lteRefl
+divNNKisNotGT (S k) (S j) with (lte k j) proof p
+  divNNKisNotGT (S k) (S j) | True = LTEZero
+  divNNKisNotGT (S k) (S j) | False = ?test
+
+minusNNalwaysZ : (n : Nat) -> minus n n = Z
+minusNNalwaysZ Z = Refl
+minusNNalwaysZ (S k) = 
+  let rec = minusNNalwaysZ k
+  in rewrite rec in Refl
+
+succNeverLT : (n : Nat) -> lte (S n) n = False
+succNeverLT Z = Refl
+succNeverLT (S k) = 
+  let rec = succNeverLT k
+  in rewrite rec in Refl
+
+-----------------------------PROOFS---------------------------
+
+divByItselfAlwaysSZ : (n : Nat) -> (prf : Not (n = 0)) -> 
+                      myDiv n n prf = S Z
+divByItselfAlwaysSZ Z prf = void (prf Refl)
+divByItselfAlwaysSZ (S Z) prf = Refl
+divByItselfAlwaysSZ (S k) prf = 
+  rewrite succNeverLT k in 
+    rewrite minusNNalwaysZ k in
+      rewrite divCentreZIsZ k in Refl
+
+divIsNotGT : (n, m : Nat) -> (prf : Not (m = 0)) -> 
+             LTE (myDiv n m prf) n
+divIsNotGT n Z prf = void (prf Refl)
+divIsNotGT n (S Z) prf = rewrite divNNZisSZ n in lteRefl
+divIsNotGT n (S k) prf = 
+  let rec = \p => divIsNotGT n k p
+  in ?wait
+
+------------------------------CODE----------------------------
 BufferError : Type
 BufferError = String
 
@@ -37,6 +102,7 @@ nonce256 path = do
   bytes <- bufferData buffer
   pure $ Right bytes
 
+{-
 -- TODO: move from List Bits8 to Vect n Bits8 to gain proofs
 --       about the length of byte vectors
 sha256 : String -> (Nat, Nat)
@@ -215,28 +281,24 @@ sha256 s = (bitLength, padLength)
           k n | Yes prf =
             let prf2 = lteSuccLeft prf
             in 512 - n
-          k n | No contra = 
-            let d = (divNatNZ n 512 SIsNotZ) + 1
-                prf = notLTImpliesGTE contra
-                m = d * 512
-            in ?wait
+          k n | No contra = ?wait
+            where
+              m : Nat
+              m = ((myDiv n 512 SIsNotZ) + 1) * 512
 
+              prf : LTE 512 n
+              prf = notLTImpliesGTE contra
 
+              prf2 : LTE (S n) m
+              prf2 = ?alsowait
 
-
-
-
-
-
-
+-}
 
 main : IO ()
 main = do
   Right bits <- nonce256 "/dev/urandom"
   | Left err => putStrLn "Somehow got err"
   putStrLn $ show bits
-
-
 
 
   
