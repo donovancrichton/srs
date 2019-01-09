@@ -250,7 +250,7 @@ Student Number: u6881864}
       \begin{itemize}
         \item Let $svi$ represent a random 3072 bit number under the DH3k key
               agreement type.
-        \item Let $p = 2^{3072} - 2^3008 - 1 + 2^64(2^2942\pi + 1690314)$ represent
+      \item Let $p = 2^{3072} - 2^{3008} - 1 + 2^{64}(2^{2942}\pi + 1690314)$ represent
               the prime number under the DH3k key agreement type.
         \item Let $g = 2$ represent the generator under the DH3k key agreement
               type.
@@ -279,7 +279,7 @@ Student Number: u6881864}
       \begin{itemize}
         \item Let $svr$ represent a random 3072 bit number under the DH3k key
               agreement type.
-        \item Let $p = 2^{3072} - 2^3008 - 1 + 2^64(2^2942\pi + 1690314)$ represent
+      \item Let $p = 2^{3072} - 2^{3008} - 1 + 2^{64}(2^{2942}\pi + 1690314)$ represent
               the prime number under the DH3k key agreement type.
         \item Let $g = 2$ represent the generator under the DH3k key agreement
               type.
@@ -312,12 +312,102 @@ Student Number: u6881864}
     alice_2(pvr_{a1},svi_{b1},p_{b1})=
     \begin{cases}
       \text{Terminate Protocol}, &\text{if } pvr_{a1} = p_{b1} \\
-      \text{Terminate Protocol}, &\text{otherwise if } pvr_{a1} = p_{b1} - 1 \\
-      \text{Terminate Protocol}, &\text{otherwise if } ha(bob_4||alice_0) \neq
-      hvi_{b2} \\
-      \text{Let $dhr = mod(pvr_{a1}^{svi_{b1}},p)$}, &\text{otherwise.}
+      \text{Terminate Protocol}, &\text{otherwise if } pvr_{a1} = 
+            p_{b1} - 1 \\
+      \text{Terminate Protocol}, &\text{otherwise if } 
+            ha(bob_4||alice_0) \neq hvi_{b2} \\
+      \text{Let $dhr = mod(pvr_{a1}^{svi_{b1}},p)$}, 
+            &\text{otherwise.} 
     \end{cases}
   \]
 
+  \section{A Prototype Domain Specific Language}
+  \subsection{Values}
+  A value $v$ is given by the following: \\
+  let $b32$ represent a 32 bit integer. \\
+  \begin{align*}
+  v\; ::=\; &val(b32) \\
+          &|\; add(v_1,v_2) \\
+          &|\; sub(v_1,v_2) \\
+          &|\; xor(v_1,v_2) \\
+          &|\; rightrotate(v_1,v_2) \\
+          &|\; rightshift(v_1,v_2)
+  \end{align*}
+  \subsection{\textit{Prg}: a DSL for the constrained protocol.}
+  let $n$ represent a natural number. \\
+  let $v$ represent the value type. \\
+  let $s$ represent the string type. \\
+  let $vec(n, t)$ represent the vector type of length $n$ of 
+    values of type $t$.
+  \begin{align*}
+  prg(n)\; ::=\; &\text{Terminate: } \\
+                 &halt : prg(1) \\
+                 &\text{Assign a constant: } \\
+                 &|\; assc(name:s,val:v,cont:prg(k)) 
+                        : prg (k + 1) \\
+                 &\text{Assign an array: } \\
+                 &|\; assa(name:s,vals : vec(size, v), cont:prg(k))
+                        : prg (k + size + 1) \\
+                 &\text{Conditional branching: } \\
+                 &|\; cond(pred : prg(n), true : prg(m),
+                        false : prg(m), cont: prg(k)) 
+                        : prg(k + m + n + 1) \\
+                 &\text{Repetition: } \\
+                 &|\; do(counts : n, iter : prg(k), cont : prg(m))
+                        : prg(k * n + m) \\
+                 &\text{Do nothing: } \\
+                 &|\; skip(cont : prg(k)) : prg(k + 1)
+  \end{align*}
+
+  \subsection{Describing SHA-256}
+  \subsubsection{Initialising the hash values:}
+  \begin{align*}
+  \text{let $hs : vec(8, v)$ represent } 
+          [&val(6a09e667),val(bb67ae85), val(3c6ef372), \\
+           &val(a54ff53a),val(510e527f), val(9b05688c), \\
+           &val(1f83d9ab),val(5be0cd19)].
+  \end{align*}
+  $initHashValue : prg(n) \mapsto prg(n + 8 + 1)$ \\
+  $initHashValue(p) = assa(``hs",hs,p)$
+  \subsubsection{Initialising the round constants:}
+  \begin{align*}
+  \text{let $ks : vec(64,v)$ represent }
+          [&val(428a2f98),val(71374491),val(b5c0fbcf), \\
+           &val(e9b5dba5),val(3956c25b),val(59f111f1), \\
+           &val(923f82a4),val(ab1c5ed5), \\
+           &val(d807aa98),val(12835b01),val(243185be), \\
+           &val(550c7dc3),val(72be5d74),val(80deb1fe), \\
+           &val(9bdc06a7),val(c19bf174), \\
+           &val(e49b69c1),val(efbe4786),val(0fc19dc6), \\
+           &val(240ca1cc),val(2de92c6f),val(4a7484aa), \\
+           &val(5cb0a9dc),val(76f988da), \\
+           &val(983e5152),val(a831c66d),val(b00327c8), \\
+           &val(bf597fc7),val(c6e00bf3),val(d5a79147), \\
+           &val(06ca6351),val(14292967), \\
+           &val(27b70a85),val(2e1b2138),val(4d2c6dfc), \\
+           &val(53380d13),val(650a7354),val(766a0abb), \\
+           &val(81c2c92e),val(92722c85), \\
+           &val(a2bfe8a1),val(a81a664b),val(c24b8b70), \\
+           &val(c76c51a3),val(d192e819),val(d6990624), \\
+           &val(f40e3585),val(106aa070), \\
+           &val(19a4c116),val(1e376c08),val(2748774c), \\
+           &val(34b0bcb5),val(391c0cb3),val(4ed8aa4a), \\
+           &val(5b9cca4f),val(682e6ff3), \\
+           &val(748f82ee),val(78a5636f),val(84c87814), \\
+           &val(8cc70208),val(90befffa),val(a4506ceb), \\
+           &val(bef9a3f7),val(c67178f2)]
+  \end{align*}
+  $initRoundConsts : prg(n) \mapsto prg (n + 64 + 1)$ \\
+  $initRoundConsts(p) = assa(``ks",ks,p)$
+  \subsubsection{Padding the original message.}
+  \begin{align*}
+  \text{let $ps(ms) : vec(8,v) \mapsto vec(16,v)$ represent } 
+          [&ms_0,ms_1, ms_2, ms_3, ms_4, ms_5, ms_6, ms_7 \\
+           &val(80000000),val(00000000),val(00000000), \\
+           &val(00000000),val(00000000),val(00000000), \\
+           &val(00000000),val(00000100)]
+  \end{align*}
+  $pad256 : vec(8,v) \mapsto prg(n) \mapsto prg(n + 16 + 1)$ \\
+  $pad256(ms,p) = assa(``ms",ps(ms),p)$
  
 \end{document}
