@@ -19,7 +19,7 @@ data Prg : Nat -> Type where
   AssA   : {k : Nat} -> (name : String) -> Vect size Value ->
                         (cont : Prg k) -> Prg (S (k + size))
   GetA   : {k, m : Nat} -> (index: Nat) -> (arr : Prg m) -> 
-                        (cont : Prg k) -> Prg (S (k + index))
+                           (cont : Prg k) -> Prg (S (k + index))
   Cond   : {k, n, m : Nat} -> (cond: Prg n) -> (true : Prg k) -> 
                               (false : Prg k) -> (cont : Prg m) -> 
                               Prg (k + n + m)
@@ -72,8 +72,33 @@ pad256 ms p =
              Val 0x00000000, Val 0x00000000, Val 0x00000000, 
              Val 0x00000000, Val 0x00000100] p
 
+-- process the single 512 bit chunk as per sha256
+process : Vect 16 value -> Prg n -> Prg k
+process ms p = ?wait
+  where
+    f' : Value -> Value
+    f' x = Xor (RightRotate x (Val 7)) (RightRotate x (Val 18))
+
+    f : Value -> Value
+    f x = Xor (f' x) (RightShift x (Val 3))
+
+    g' : Value -> Value
+    g' y = Xor (RightRotate y (Val 17)) (RightRotate y (Val 19))
+
+    g : Value -> Value
+    g y = Xor (g' y) (RightShift y (Val 10))
+
+    fg : Value -> Value -> Value -> Value -> Value
+    fg = \n, m, x, y => Add (Add (Add n (f x)) n) (g y)
+
+
+             
+
+
 sha256of256 : (n : Nat ** Prg n)
 sha256of256 = (_ ** (initHashValues (initRoundConsts 
               (pad256 [Val 116101, Val 115116, Val 0, 
                       Val 0, Val 0, Val 0, Val 0, Val 0] 
                       Halt))))
+
+
