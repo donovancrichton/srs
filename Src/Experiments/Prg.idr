@@ -4,6 +4,7 @@ import Data.Vect
 -- 32 Bit values and functions that operate on them. Assuming
 -- constant time for all operations
 data Value : Type where
+  Error       : Value
   Val         : Bits32 -> Value 
   Add         : Value -> Value -> Value 
   Sub         : Value -> Value -> Value 
@@ -16,25 +17,38 @@ data Prg : Nat -> Type where
   Halt   : Prg 1
   AssC   : {k : Nat} -> (name : String) -> Value -> 
                         (cont : Prg k) -> Prg (S k)
-  AssA   : {k : Nat} -> (name : String) -> Vect size Value ->
-                        (cont : Prg k) -> Prg (S (k + size))
-  GetA   : {k, m : Nat} -> (index: Nat) -> (arr : Prg m) -> 
-                           (cont : Prg k) -> Prg (S (k + index))
-  Cond   : {k, n, m : Nat} -> (cond: Prg n) -> (true : Prg k) -> 
+  AssA   : {k : Nat} -> (name : String) -> (index : Nat) ->
+                        (val : Value) ->
+                        (cont : Prg k) -> Prg (S k)
+  Cond   : {k, m, n : Nat} -> (cond: Prg n) -> (true : Prg k) -> 
                               (false : Prg k) -> (cont : Prg m) -> 
                               Prg (k + n + m)
-  Do     : {k, n, m : Nat} -> (counts : Nat) -> (iter : Prg k) -> 
+  Do     : {k, m, n : Nat} -> (counts : Nat) -> (iter : Prg k) -> 
                               (cont : Prg m) -> Prg (k * n + m)
   Skip   : {k : Nat} -> Prg k -> Prg (S k)
 
+getVal : Prg n -> Value
+getVal Halt = Error
+getVal (AssC name x cont) = x
+getVal (AssA name index val cont) = val
+getVal (Cond cond true false cont) = Error
+getVal (Do counts iter cont) = Error
+getVal (Skip x) = Error
+
 
 -- init the constant 32 bit hashes for sha256
-initHashValues : Prg n -> Prg (S (n + 8))
+initHashValues : Prg n -> Prg (8 + n)
 initHashValues p =  
-  AssA "hs" [Val 0x6a09e667, Val 0xbb67ae85, Val 0x3c6ef372,
-             Val 0xa54ff53a, Val 0x510e527f, Val 0x9b05688c,
-             Val 0x1f83d9ab, Val 0x5be0cd19] p
+  AssA "hs" 0 (Val 0x6a09e667) (
+  AssA "hs" 1 (Val 0xbb67ae85) (
+  AssA "hs" 2 (Val 0x3c6ef372) (
+  AssA "hs" 3 (Val 0xa54ff53a) (
+  AssA "hs" 4 (Val 0x510e527f) (
+  AssA "hs" 5 (Val 0x9b05688c) (
+  AssA "hs" 6 (Val 0x1f83d9ab) (
+  AssA "hs" 7 (Val 0x5be0cd19) p)))))))
 
+{-
 -- init the round constants for sha256
 initRoundConsts : Prg n -> Prg (S (n + 64))
 initRoundConsts p =
@@ -101,4 +115,4 @@ sha256of256 = (_ ** (initHashValues (initRoundConsts
                       Val 0, Val 0, Val 0, Val 0, Val 0] 
                       Halt))))
 
-
+-}
