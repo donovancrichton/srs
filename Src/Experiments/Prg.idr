@@ -27,7 +27,6 @@ replace s v ((s', v') :: svs) = if s == s'
                                 then (s, v) :: replace s v svs
                                 else (s', v') :: replace s v svs
 
-
 update : (name : String) -> (val : Bits32) -> (env : Env) -> Env
 update name val g = 
   case (Main.lookup name g) of
