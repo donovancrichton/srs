@@ -35,5 +35,7 @@ docs:
 	@rm -f $(PPATH)/$(SRC)/*.fls
 	@rm -f $(PPATH)/$(SRC)/*.fdb_latexmk
   
+talk:
+
 clean:
 	@rm $(PPATH)/$(DOCPATH)/$(TARGET3).pdf
