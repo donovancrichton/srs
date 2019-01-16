@@ -2,8 +2,10 @@ PPATH:=$(shell pwd)
 TARGET1=Simple
 TARGET2=BANNHC
 TARGET3=paper
+TARGET4=talk
 
 DOCPATH=Docs
+TALKPATH=Talk
 CC=idris
 CFLAGS=--codegen c $(TARGET1).idr -o $(TARGET1)
 DC=latexmk
@@ -36,6 +38,18 @@ docs:
 	@rm -f $(PPATH)/$(SRC)/*.fdb_latexmk
   
 talk:
+	@cd $(PPATH)/$(SRC)/; $(DC) $(DFLAGS) $(TARGET3).tex
+	@cd $(PPATH)/$(SRC)/; $(DC) -c $(TARGET3).tex
+	#remove minted report folder
+	@rm -rf $(PPATH)/$(SRC)/_minted-report
+	#remove any unwanted backups
+	@rm -f $(PPATH)/$(SRC)/$(TARGET3).tex.bak
+	@mkdir -p $(PPATH)/$(TALKPATH)
+	@mv $(PPATH)/$(SRC)/$(TARGET3).pdf $(PPATH)/$(TALKPATH)
+	#clean up after latexmk
+	@rm -f $(PPATH)/$(SRC)/*.aux
+	@rm -f $(PPATH)/$(SRC)/*.fls
+	@rm -f $(PPATH)/$(SRC)/*.fdb_latexmk
 
 clean:
 	@rm $(PPATH)/$(DOCPATH)/$(TARGET3).pdf
