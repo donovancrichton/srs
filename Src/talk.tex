@@ -1,0 +1,164 @@
+\documentclass{beamer}
+\usepackage[utf8]{inputenc}
+
+\usepackage{minted}
+\usepackage{pgf}
+\usepackage{tikz}
+\usepackage{upquote}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usetikzlibrary{arrows,automata,positioning}
+
+\setbeamertemplate{footline}[frame number]
+\setbeamertemplate{navigation symbols}{}
+
+\title{Verified Time Balancing of Securit Protocols}
+\author{Donovan Crichton}
+\date{January 2019}
+
+\begin{document}
+ 
+\frame{\titlepage}
+
+\begin{frame}[fragile]
+  \frametitle{The Problem}
+  \begin{itemize}
+    \item Can we formally prove that an implementation of
+            a network security protocol is immune to 
+                  timing side-channel attacks?
+    \item In other words, can we show that a model of the protocol,
+            along with its implementation is unable to leak
+                  any timing information to an observer.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Rationale}
+  \begin{itemize}
+    \item Some departments in the ASD spend a large amount of time
+            manually verifying cryptographic routines in vendor
+            code.
+    \item Requires large amounts of time and expertise, resulting
+            in a slow verfication process.
+    \item Formal methods may allow the 
+            automation of these verification processes.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Formal Methods}
+    \begin{itemize}
+      \item A mathematical approach to the 
+              development, specification and verification of 
+                    software.
+      \item Uses "theorem proving assistants", software that
+              formally verifies against a specification.
+      \item We can implement a proof of concept network security 
+              protocol inside a theorem prover (namely Idris).
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{How do proof assistants work?}
+    \begin{itemize}
+      \item Rely on on a relationship between proofs in mathematics
+              and computer programs known as the Curry-Howard 
+                    correspondance.
+      \item The proof system of intuitionistic 
+              natural deduction can be directly interpreted 
+                    as a model of computation known as 
+                    lambda calculus.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{A quick Idris example.}
+  \begin{block}{A simple function in Idris}
+  \begin{minted}{haskell}
+f : Nat -> Nat
+f x = x + 2
+  \end{minted}
+  \end{block}
+  \begin{block}{The same function in familiar notation.}
+$f : \mathbb{N} \mapsto \mathbb{N}$ \\
+$f(x) = x + 2$
+  \end{block}
+\end{frame}
+
+
+\begin{frame}[fragile]
+ \frametitle{Logic in the Idris language.}
+    \begin{table}[h!]
+    \begin{tabular}{c|c|c|c}
+    \textbf{Logic Term} & \textbf{Logic Symbol} & 
+            \textbf{Idris Symbol} & \textbf{Idris Term} \\
+    \hline
+      Implication & p $\Rightarrow$ q & p \mintinline{haskell}{->} q
+      & Arrow \\
+      Conjunction & p $\land$ q & \mintinline{haskell}{(p, q)}
+      & Pair (Product) \\ 
+      Disjunction & p $\lor$ q & \mintinline{haskell}{Either p q}
+      & Enum (Sum)\\
+      Negation & $\lnot$ p & \mintinline{haskell}{p -> Void} &
+      Void Type \\ 
+      IFF/Eq & p $\equiv$ q, p $\iff$ q & \mintinline{haskell}{(p -> q, q -> p)}  
+      & Pair Arrows \\
+      Universal & $\forall$ x. P x &
+      \mintinline{haskell}{p -> Type} & $\Pi$ Type \\
+      Existential & $\exists$ x. P x
+      & \mintinline{haskell}{(x ** P x)} & $\Sigma$ Type \\
+      \hline
+       & & \mintinline{haskell}{p = q} & Type Equality
+    \end{tabular}
+  \end{table}
+\end{frame}
+
+
+\begin{frame}[fragile]
+  \frametitle{Outline of the problem.}
+  \begin{itemize}
+  \item It's much simpler to prove properties for a small
+        language than a large one.
+  \item We can then design a minimal programming language
+        that is just powerful enough to express our example 
+        protocol, while proving that this language has
+        the properties we desire.
+  \item We could then design a provably correct translation
+        from this language into one more amenable to 
+        production (C, Assembly, etc).
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Prg : A minimal core language}
+  \begin{item} Every expression in this language is paramterised
+          over its supposed running time. 
+  \begin{item} The language can be elaborated into a language nicer
+          to use.
+  \begin{item} The language can also be compiled or translated
+          into a language more amenable for real-life performance.
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{A diagram of Prg.}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Challenges and Outcomes}
+  \begin{itemize}
+    \item Still in the process of confirming whether Prf is 
+            expressive enough for a cryptographic key exchange
+    \item Are there other kinds of proofs we might be interested in
+            on this language to ensure no additional leakage of
+                  information?
+    \item For future work, the implementation of the compilation
+            or translation step in the thorem prover.
+\end{frame}
+
+
+%\begin{frame}[fragile]
+
+%\end{frame}
+
+
+
+\end{document}
