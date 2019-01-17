@@ -4,12 +4,16 @@ import Data.Bits
 %default total
 
 Env : Type
-Env = String -> Maybe Bits32
+Env = String -> Bits32
+
+ArrEnv : Type
+ArrEnv = String -> Nat -> Bits32
+
 
 emptyEnv : Env
-emptyEnv = \x => Nothing
+emptyEnv = \x => 0
 
-updateEnv : String -> Maybe Bits32 -> Env -> Env
+updateEnv : String -> Bits32 -> Env -> Env
 updateEnv s v g = \s' => if s == s' 
                          then v
                          else g s'
@@ -38,26 +42,27 @@ data Prg : Nat -> Type where
   Cond   : {k, n : Nat} -> (pred : String) -> (true : Prg n) ->
                         (false : Prg n) -> (cont : Prg k) ->
                         Prg (S (n + k))
-
+-- consider implementing this
+-- eval : Prg n -> (Env, ArrEnv) -> (Env, ArrEnv)
 eval : Prg n -> Env -> Env
 eval Halt g = g
 eval (AssC name val cont) g = 
-  eval cont $ updateEnv name (Just val) g
+  eval cont $ updateEnv name val g
 eval (AssV name1 name2 cont) g =
   eval cont $ updateEnv name1 (g name2) g
 eval (AssA name index var cont) g =
   eval cont $ updateEnv (name ++ (show index)) (g var) g
 eval (UnOp name f x cont) g =
-  eval cont $ updateEnv name (f <$> g x) g
+  eval cont $ updateEnv name (f (g x)) g
 eval (BinOp name f x y cont) g = 
-  eval cont $ updateEnv name (f <$> g x <*> g y) g
+  eval cont $ updateEnv name (f (g x) (g y)) g
 eval (Do iter Z cont) g = eval cont g
 eval (Do iter (S k) cont) g = assert_total $ 
   eval cont $ eval (Do iter k cont) (eval iter g)
 eval (Cond pred true false cont) g = 
   case (g pred) of
-    Just 0 => eval cont $ eval true g
-    _      => eval cont $ eval false g
+    0 => eval cont $ eval true g
+    _ => eval cont $ eval false g
 
 -- a test program for addition
 testAdd : Prg 4
@@ -70,11 +75,18 @@ testDo =
   (Do testAdd 3 Halt)
 
 prgAddDoesAdd : (g : Env) -> 
-  (eval Main.testAdd g) "x" = (+) <$> (g "x") <*> (Just 2)
+  (eval Main.testAdd g) "x" = (g "x") + 2
 prgAddDoesAdd g = Refl
 
+addXZeroIsX : (x : Bits32) -> prim__addB32 0 x = x
+addXZeroIsX x = ?add
+
+someLemma : (x, y, z : Bits32) -> 
+            prim__addB32 (prim__addB32 x y) z = prim__addB32 x (y + z)
+someLemma x y z = ?test2
+
 prgDoDoesDo : (g : Env) -> 
-  (eval Main.testDo g) "x" = (+) <$> (g "x") <*> (Just 6)
+  (eval Main.testDo g) "x" = (g "x") + 6
 prgDoDoesDo g = ?test
 
 
