@@ -3,12 +3,17 @@ import Data.Bits
 
 %default total
 
+--------------------------AXIOMS---------------------------
+
+-- Addition of 32 Bit Integers with overflow is associative
+postulate 
+addB32Assoc : (x, y, z: Bits32) ->
+ prim__addB32 (prim__addB32 x y) z =
+    prim__addB32 x (prim__addB32 y z)
+-----------------------------------------------------------
+
 Env : Type
 Env = String -> Bits32
-
-ArrEnv : Type
-ArrEnv = String -> Nat -> Bits32
-
 
 emptyEnv : Env
 emptyEnv = \x => 0
@@ -42,12 +47,12 @@ data Prg : Nat -> Type where
   Cond   : {k, n : Nat} -> (pred : String) -> (true : Prg n) ->
                         (false : Prg n) -> (cont : Prg k) ->
                         Prg (S (n + k))
--- consider implementing this
--- eval : Prg n -> (Env, ArrEnv) -> (Env, ArrEnv)
+-- evaluation
 eval : Prg n -> Env -> Env
 eval Halt g = g
 eval (AssC name val cont) g = 
-  eval cont $ updateEnv name val g
+  eval cont $ updateEnv name (val) g
+>>>>>>> 33410334ddbef232f60f22557071266f7941ee96
 eval (AssV name1 name2 cont) g =
   eval cont $ updateEnv name1 (g name2) g
 eval (AssA name index var cont) g =
@@ -66,29 +71,60 @@ eval (Cond pred true false cont) g =
 
 -- a test program for addition
 testAdd : Prg 4
-testAdd = (AssC "a2" 2 (AssV "a1" "x" (BinOp "x" (+) "a1" "a2" 
-                Halt)))
+testAdd = (AssC "a2" 2 (AssV "a1" "x" 
+            (BinOp "x" (+) "a1" "a2" Halt)))
 
 -- a test program for iteration
 testDo : Prg 14
-testDo = 
-  (Do testAdd 3 Halt)
+testDo = (Do testAdd 3 Halt)
+
+-- i := 0; x := 0; for i in 0 to 9; x := i + x
+testSum : Prg 44
+testSum = ieq0 (xeq0 do10)
+  where
+    ieq0 : Prg k -> Prg (S k)
+    ieq0 = \p => AssC "i" 0 p
+
+    xeq0 : Prg k -> Prg (S k)
+    xeq0 = \p => AssC "x" 0 p
+
+    xplusi : Prg k -> Prg (S k)
+    xplusi = \p => BinOp "x" (+) "x" "i" p
+
+    yeq1 : Prg k -> Prg (S k)
+    yeq1 = \p => AssC "y" 1 p
+
+    iplus1 : Prg k -> Prg (S k)
+    iplus1 = \p => BinOp "i" (+) "i" "y" p
+
+    do10 : Prg 42
+    do10 = Do (xplusi (yeq1 (iplus1 Halt))) 10 Halt
+      
+              
+-------------------- Simple Proofs ------------------------
+
+-- A proof that evaluating testAdd on any env for "x"
+-- returns x + 2.
 
 prgAddDoesAdd : (g : Env) -> 
   (eval Main.testAdd g) "x" = (g "x") + 2
 prgAddDoesAdd g = Refl
 
-addXZeroIsX : (x : Bits32) -> prim__addB32 0 x = x
-addXZeroIsX x = ?add
-
-someLemma : (x, y, z : Bits32) -> 
-            prim__addB32 (prim__addB32 x y) z = prim__addB32 x (y + z)
-someLemma x y z = ?test2
-
+-- A proof that evaluating testDo on any env for "x"
+-- returns x + 6
 prgDoDoesDo : (g : Env) -> 
   (eval Main.testDo g) "x" = (g "x") + 6
-prgDoDoesDo g = ?test
+prgDoDoesDo g = 
+  let prf = addB32Assoc (g "x") 2 2
+      prf2 = addB32Assoc (g "x") 4 2
+  in rewrite prf in prf2
+  
+-- A proof that testSum sums the numbers between 0 and 9
+-- regardless of the given environment.
+prgTestSumDoesSum : (g : Env) -> (eval Main.testSum g) "x" = 45
+prgTestSumDoesSum g = Refl
 
-
-
+prgSHA256 : Bits32 -> Bits32 -> Bits32 -> Bits32 -> Bits32 -> 
+            Bits32 -> Bits32 -> Bits32 -> Prg ?test
+prgSHA256 m1 m2 m3 m4 m5 m6 m7 m8 = ?hold
 
