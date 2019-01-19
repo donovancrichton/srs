@@ -81,7 +81,7 @@
   $f : \mathbb{N} \rightarrow \mathbb{N} \rightarrow \mathbb{N}$ \\
   $f = + $ \\ \\
   Applying an argument to a multi argument function returns the 
-  rest of the function! \\ \\
+    rest of the function! (Arrow associates to the right)\\ \\
   $f(2) : \mathbb{N} \rightarrow \mathbb{N}$ \\
   $f(2) = 2 + $ \\ \\
   Finally all arguments are applied. \\ \\
@@ -117,7 +117,7 @@
 \end{frame}
 
 \begin{frame}[fragile]
-  \frametitle{Quick Background 3 - Idris Syntax and Functions as Types}
+  \frametitle{Quick Background 3 - Idris Syntax and Values as Types}
   Building a vector type in Idris: 
   \begin{minted}{haskell}
     data Vec : Nat -> Type -> Type where
@@ -134,7 +134,39 @@
 
 \begin{frame}[fragile]
   \frametitle{Capturing time invariants in a small DSL}
-  %insert picture for prg here!
+  %code for prg goes here, correct by construction
+  \begin{minted}
+  \end{minted}
 \end{frame}
 
+\begin{frame}[fragile]
+  \frametitle{What about more expressive time parameters?}
+  %discuss how in the case of mod, we can have the time parameter
+  %expressed as a function of the input
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Elaboration and Compilation of a small correct core}
+  %diagram on how a small correct core can be both elaborated and compiled
+  %for compiled can be mapped to a specific chipset achitecture
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Contributions}
+  \begin{itemize}
+    \item Formal description of a simplified protocol.
+    \item Prg: A small language parameterised over computational time
+    \item Some small proofs of Prg correctness.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Further Work}
+  \begin{itemize}
+    \item Implement the simplified protocol in Prg.
+    \item Modulo arithmetic cases.
+    \item Relax some of the (many) assumptions.
+    \item Investigate elaboration and compilation with regard to invariants.
+  \end{itemize}
+\end{frame}
 \end{document}
