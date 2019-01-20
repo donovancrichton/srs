@@ -142,6 +142,20 @@
 \end{frame}
 
 \begin{frame}[fragile]
+  \frametitle{Correctness by construction}
+  \begin{itemize}
+    \item The protocol implementations can be
+          quite complex, possibly giving rise
+          to equally complex proof obligations.
+    \item We'd like to reduce this burden somehow!
+    \item We can design a language that is just 
+          big enough to compute what we like, 
+          but restrictive enough to capture the
+          invariants we care about.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
   \frametitle{Building a type of Prg n}
   \begin{table}[h!]
   \begin{tabular}{c|c|c|c}
@@ -154,7 +168,7 @@
   BinOP & Prg k & Prg (k + 1) & Asn result of binary op. \\
   Do & Prg k & Prg (m * n + k) & Run Prg m, n times. \\
   Cond & Prg k & Prg (n + k) & Branch on Prg n. \\
-  Skip & Prg k * Prg (k + 1) & Do Nothing.
+  Skip & Prg k & Prg (k + 1) & Do Nothing.
   \end{tabular} 
   \end{table}
   Conditionals require both branches to be Prg n. Ensuring
