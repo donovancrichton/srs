@@ -12,7 +12,7 @@
 \setbeamertemplate{footline}[frame number]
 \setbeamertemplate{navigation symbols}{}
 
-\title{Verified Time Balancing of Security Protocols}
+\title{Towards Verified Time Balancing of Security Protocols}
 \author{Donovan Crichton}
 \date{January 2019}
 
@@ -30,7 +30,9 @@
     \item Can we reduce some of the resources ASD spends on 
             manual verification by replacing with automatic 
             verification?
-    \item A case study, also work towards more secure protocols.
+    \item Can we also further research into secure communications
+          protocols?
+    \item A case study.
   \end{itemize}
 \end{frame}
 
@@ -59,9 +61,10 @@
 \begin{frame}[fragile]
   \frametitle{The Simplified Protocol}
     \begin{itemize}
-      \item Commit messages contain hashes of 256 bit random nonce.
+      \item Commit messages that contain SHA-256 hashes
       \item Diffie-Hellman key exchange contains modulo arithmetic.
       \item How can we formally guarantee the timing of operations?
+      \item Lets cover some background before diving in!
     \end{itemize}
 \end{frame}
 
@@ -69,9 +72,9 @@
   \frametitle{Approach}
   \begin{itemize}
     \item We can use the notion of propositions as types.
-    \item Dependently typed functional programming languages
-            also act as theorem provers for a higher-order
-                  constructive logic.
+    \item Functional programming languages that support dependent
+          types can act as theorem provers under a higher order
+          constructive logic.
     \item We can model this protocol in such a language, Idris.
     \item We can express proofs about properties of the protocol.
   \end{itemize}
@@ -93,7 +96,24 @@
 \end{frame}
 
 \begin{frame}[fragile]
-  \frametitle{Quick Background 2 - Propositions as Types}
+  \frametitle{Quick Background 2 - Idris Syntax and Values as Types}
+  Building a vector type in Idris: 
+  \begin{minted}{haskell}
+    data Vec : Nat -> Type -> Type where
+      Nil  : Vec 0 a
+      (::) : (x : a) -> Vec n a -> Vec (n + 1) a
+  \end{minted}
+  We can parameterise types over values to capture invariants in 
+  the model.
+  \begin{minted}{haskell}
+    append : Vec n a -> Vec m a -> Vec (n + m) a
+    append Nil ys = ys
+    append (x :: xs) ys = x :: append xs ys 
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Quick Background 3 - Propositions as Types}
   Under the assumptions of referential transparency and totality.
      \begin{table}[h!]
     \begin{tabular}{c|c|c|c}
@@ -122,35 +142,19 @@
 \end{frame}
 
 \begin{frame}[fragile]
-  \frametitle{Quick Background 3 - Idris Syntax and Values as Types}
-  Building a vector type in Idris: 
-  \begin{minted}{haskell}
-    data Vec : Nat -> Type -> Type where
-      Nil  : Vec 0 a
-      (::) : (x : a) -> Vec n a -> Vec (n + 1) a
-  \end{minted}
-  We can parameterise types over values to capture invariants in 
-  the model.
-  \begin{minted}{haskell}
-    append : Vec n a -> Vec m a -> Vec (n + m) a
-    append Nil ys = ys
-    append (x :: xs) ys = x :: append xs ys 
-  \end{minted}
-\end{frame}
-
-\begin{frame}[fragile]
   \frametitle{Building a type of Prg n}
   \begin{table}[h!]
   \begin{tabular}{c|c|c|c}
   Statement & Continuation & Result & Description \\
   \hline 
-  Halt & Prg 1 & Prg 1 & Terminate \\
+  Halt & - & Prg 1 & Terminate \\
   AssC & Prg k & Prg (k + 1) & Asn constant. \\
   AssV & Prg k & Prg (k + 1) & Asn variable. \\
   UnOp & Prg k & Prg (k + 1) & Asn result of unary op. \\
   BinOP & Prg k & Prg (k + 1) & Asn result of binary op. \\
   Do & Prg k & Prg (m * n + k) & Run Prg m, n times. \\
   Cond & Prg k & Prg (n + k) & Branch on Prg n. \\
+  Skip & Prg k * Prg (k + 1) & Do Nothing.
   \end{tabular} 
   \end{table}
   Conditionals require both branches to be Prg n. Ensuring
@@ -197,7 +201,7 @@
     \item The size of the core language makes the burden of proofs
           much lighter.
     \item The compiler can map the core language expressions down
-          to something more real world (e.g C, assembler).
+          to something more ``real world" (e.g C, assembler).
   \end{itemize}
   \end{minipage}
 \end{frame}
