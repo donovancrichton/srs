@@ -23,13 +23,14 @@
 \begin{frame}[fragile]
   \frametitle{Motivation}
   \begin{itemize}
-    \item ASD manually verifies vendor code with containing cryptographic
-            processes.
+    \item ASD manually verifies vendor code with containing 
+          cryptographic processes.
     \item Formal Methods: A mathematically based approach to the
             specification and verification of software.
     \item Can we reduce some of the resources ASD spends on 
-            manual verification by replacing with automatic verification?
-    \item A case study.
+            manual verification by replacing with automatic 
+            verification?
+    \item A case study, also work towards more secure protocols.
   \end{itemize}
 \end{frame}
 
@@ -37,8 +38,8 @@
   \frametitle{Formally Verifying a Time Balanced Security Protocol}
   \begin{itemize}
     \item Attackers can gain information from message timing.
-    \item Can we model this invariant? Naively all operations have the
-            same running time.
+    \item Can we model this invariant? Naively all operations 
+          have the same running time.
     \item Can we ensure that assumptions on this model hold for the
             implementation?
   \end{itemize}
@@ -93,18 +94,19 @@
   \frametitle{Quick Background 2 - Propositions as Types}
      \begin{table}[h!]
     \begin{tabular}{c|c|c|c}
-    \textbf{Logic Term} & \textbf{Logic Symbol} & \textbf{Idris Symbol}
-      & \textbf{Idris Type} \\
+    \textbf{Logic Term} & \textbf{Logic Symbol} & 
+    \textbf{Idris Symbol} & \textbf{Idris Type} \\
     \hline
       Implication & p $\Rightarrow$ q & p \mintinline{haskell}{->} q
-      & Arrow \\
+      & Function \\
       Conjunction & p $\land$ q & \mintinline{haskell}{(p, q)} 
-      & Pair (Product) \\
+      & Pair / Tuple \\
       Disjunction & p $\lor$ q & \mintinline{haskell}{Either p q}
-      & Enum (Sum)\\
+      & Tagged Union\\
       Negation & $\lnot$ p & \mintinline{haskell}{p -> Void} &
       Void Type \\
-      IFF/Eq & p $\equiv$ q, p $\iff$ q & \mintinline{haskell}{(p -> q, q -> p)} 
+      IFF/Eq & p $\equiv$ q, p $\iff$ q & 
+        \mintinline{haskell}{(p -> q, q -> p)} 
       & Pair Arrows \\
       Universal & $\forall$ x. P x & 
       \mintinline{haskell}{p -> Type} & $\Pi$ Type \\
@@ -124,7 +126,8 @@
       Nil  : Vec 0 a
       (::) : (x : a) -> Vec n a -> Vec (n + 1) a
   \end{minted}
-  We can parameterise types over values to capture invariants in the model.
+  We can parameterise types over values to capture invariants in 
+  the model.
   \begin{minted}{haskell}
     append : Vec n a -> Vec m a -> Vec (n + m) a
     append Nil ys = ys
@@ -133,29 +136,75 @@
 \end{frame}
 
 \begin{frame}[fragile]
-  \frametitle{Capturing time invariants in a small DSL}
-  %code for prg goes here, correct by construction
-  \begin{minted}
-  \end{minted}
+  \frametitle{Building a type of Prg n}
+  \begin{table}[h!]
+  \begin{tabular}{c|c|c|c}
+  Statement & Continuation & Result & Description \\
+  \hline 
+  Halt & Prg 1 & Prg 1 & Terminate \\
+  AssC & Prg k & Prg (k + 1) & Asn constant. \\
+  AssV & Prg k & Prg (k + 1) & Asn variable. \\
+  UnOp & Prg k & Prg (k + 1) & Asn result of unary op. \\
+  BinOP & Prg k & Prg (k + 1) & Asn result of binary op. \\
+  Do & Prg k & Prg (m * n + k) & Run Prg m, n times. \\
+  Cond & Prg k & Prg (n + k) & Branch on Prg n. \\
+  \end{tabular} 
+  \end{table}
+  Conditionals require both branches to be Prg n. Ensuring
+  That all branches of the program are correct by construction.
 \end{frame}
 
 \begin{frame}[fragile]
   \frametitle{What about more expressive time parameters?}
-  %discuss how in the case of mod, we can have the time parameter
-  %expressed as a function of the input
+  \begin{minted}{haskell}
+  f : Value -> Value -> Nat
+  f = --some complex function to calculate the number of
+      --computation steps for each input to mod.
+  
+  data Prg : Nat -> Type where
+    Mod : {k : Nat} -> (cont : Prg k) -> (x : Value) ->
+          (y : Value) -> Prg ((f x y) + k)
+  \end{minted}
 \end{frame}
 
 \begin{frame}[fragile]
-  \frametitle{Elaboration and Compilation of a small correct core}
-  %diagram on how a small correct core can be both elaborated and compiled
+  \frametitle{Elaboration and Compilation of a Correct Core}
+  %diagram on how a small correct core can be both elaborated and 
+  %compiled
   %for compiled can be mapped to a specific chipset achitecture
+  \begin{minipage}[c]{5cm}
+  \begin{center}
+    \begin{tikzpicture}
+      \node[shape=rectangle, draw=black, minimum size = 2cm] (Elab) 
+           {Elaborator} ;
+      \node[shape=rectangle, draw=black, minimum size = 2cm] (Prg) 
+           [below = 1cm of Elab] {Correct Core};
+      \node[shape=rectangle, draw=black, minimum size = 2cm] (Comp) 
+           [below = 1cm of Prg] {Compiler};
+
+      \path [->] (Prg) edge node {} (Elab);
+      \path [->] (Prg) edge node {} (Comp);
+  \end{tikzpicture}
+  \end{center}
+  \end{minipage}
+  \begin{minipage}[c]{\textwidth-6cm}
+  \begin{itemize}
+    \item The small, correct core language can be elaborated to
+          a more full-featured language.
+    \item The size of the core language makes the burden of proofs
+          much lighter.
+    \item The compiler can map the core language expressions down
+          to something more real world (e.g C, assembler).
+  \end{itemize}
+  \end{minipage}
 \end{frame}
 
 \begin{frame}[fragile]
   \frametitle{Contributions}
   \begin{itemize}
     \item Formal description of a simplified protocol.
-    \item Prg: A small language parameterised over computational time
+    \item Prg: A small language parameterised over computational 
+          time
     \item Some small proofs of Prg correctness.
   \end{itemize}
 \end{frame}
@@ -166,7 +215,8 @@
     \item Implement the simplified protocol in Prg.
     \item Modulo arithmetic cases.
     \item Relax some of the (many) assumptions.
-    \item Investigate elaboration and compilation with regard to invariants.
+    \item Investigate elaboration and compilation with regard to 
+          invariants.
   \end{itemize}
 \end{frame}
 \end{document}
